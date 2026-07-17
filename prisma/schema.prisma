@@ -244,4 +244,13 @@ model AdminAuditEvent {
   actorRole String   @default("ADMIN") @map("actor_role")
   actorName String?  @map("actor_name")
   success   Boolean  @default(true)
--¸Û¯m¢G§²ÚîÆ­y×f–6SÂ÷FƒãÇFƒäFVÆ—fW'“Â÷FƒãÇFƒävVçG3Â÷FƒãÂ÷G#ãÂ÷F†VCãÇF&öG“ç¶7W7FöÖW"çW&6†6W2æÖ‚‡W&6†6R’ÓâÇG"¶W“×·W&6†6Ræ–GÓãÇFCç·W&6†6Ræ7W'&Væ7—Ò·W&6†6Rç6ÆW4Ö÷VçBçFôf—†VBƒ"—ÓÇ7ãç·W&6†6Rç6ÆTFFRçFô•4õ7G&–ær‚’ç6Æ–6RƒÂ—ÓÂ÷7ããÂ÷FCãÇFCç·W&6†6Rç&–Ö'”—77VWÓÇ7ãç·W&6†6Rç6W'f–6TFWF–Ç7ÓÂ÷7ããÂ÷FCãÇFCç·W&6†6Rç7FGW7ÓÇ7ãç·W&6†6Ræ6öæf—&ÖF–öå6VæG2æÖ‚‡6VæB’ÓâG·6VæBç6VæEG—WÓ¢G·6VæBç7FGW7ÒG·6VæBç&W6VæDVÖ–Ä–Bò‚G·6VæBç&W6VæDVÖ–Ä–GÒ–¢"'Ö’æ¦ö–â‚"+r"’ÇÂ$æòGFV×G2'ÓÂ÷7ããÂ÷FCãÇFCç·W&6†6Ræ7&VFVD'”vVçDæÖWÓÇ7ãäÆ7C¢·W&6†6RæÆ7D7F–öävVçDæÖWÓÂ÷7ããÂ÷FCãÂ÷G#â—ÓÂ÷F&öG“ãÂ÷F&ÆSãÂöF—cãÂ÷6V7F–öãà¢Ç6V7F–öâ6Æ74æÖSÒ&–çFW&æÂÖ6&B"7G–ÆS×·²Ö&v–åF÷¢#ã#W&VÒ"×ÓãÆF—b6Æ74æÖSÒ&–çFW&æÂ×6V7F–öâÖ†VF–ær#ãÆƒ#äw&VVÖVçB†—7F÷'“Âöƒ#ãÂöF—cãÆF—b6Æ74æÖSÒ&–çFW&æÂ×F&ÆR×w&#ãÇF&ÆR6Æ74æÖSÒ&–çFW&æÂ×F&ÆR#ãÇF†VCãÇG#ãÇFƒäw&VVÖVçCÂ÷FƒãÇFƒå7FGW3Â÷FƒãÇFƒäFVÆ—fW'“Â÷FƒãÇFƒå6–væVBFö7VÖVçCÂ÷FƒãÂ÷G#ãÂ÷F†VCãÇF&öG“ç¶7W7FöÖW"æw&VVÖVçG2æÖ‚†w&VVÖVçB’ÓâÇG"¶W“×¶w&VVÖVçBæ–GÓãÇFCç¶w&VVÖVçBæw&VVÖVçDçVÖ&W'ÓÇ7ãçg¶w&VVÖVçBæw&VVÖVçEfW'6–öçÓÂ÷7ããÂ÷FCãÇFCç¶w&VVÖVçBç7FGW7ÓÇ7ãç¶w&VVÖVçBç6–væVDCòçFô•4õ7G&–ær‚—ÓÂ÷7ããÂ÷FCãÇFCç¶w&VVÖVçBç6VæG2æÖ‚‡6VæB’ÓâG·6VæBç6VæEG—WÓ¢G·6VæBç7FGW7Ö’æ¦ö–â‚"+r"’ÇÂ$æòGFV×G2'ÓÂ÷FCãÇFCç¶w&VVÖVçBç6–væVEFeW&ÂòÄÆ–æ²‡&Vc×¶ö’ö–çFW&æÂöw&VVÖVçG2òG¶w&VVÖVçBæ–GÒöF÷væÆöFÓäF÷væÆöB6–væVBDcÂôÆ–æ³â¢$æ÷B6–væVB'ÓÂ÷FCãÂ÷G#â—ÓÂ÷F&öG“ãÂ÷F&ÆSãÂöF—cãÂ÷6V7F–öãà¢Âô–çFW&æÅ6†VÆÃã°§Ð 
+  timestamp DateTime @default(now()) @db.Timestamptz(6)
+  ipAddress String?  @map("ip_address")
+  metadata  Json?
+
+  @@index([timestamp(sort: Desc)])
+  @@index([action, timestamp])
+  @@index([actorRole, timestamp])
+  @@map("admin_audit_events")
+}
+

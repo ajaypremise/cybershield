@@ -4,6 +4,8 @@ import { PurchaseConfirmationEmail, purchaseConfirmationText, type PurchaseEmail
 import { SigningRequestEmail, signingRequestText, type SigningEmailProps } from "@/components/email/SigningRequestEmail";
 import { SignedAgreementEmail } from "@/components/email/SignedAgreementEmail";
 
+console.info({ hasResendApiKey: !!process.env.RESEND_API_KEY });
+
 function client() { return new Resend(env("RESEND_API_KEY")); }
 
 type ResendFailureDetails = { name: string; message: string; statusCode: number | undefined };

@@ -5,6 +5,7 @@ import { appBaseUrl } from "@/lib/env";
 import { formatAest, formatAud } from "@/lib/format";
 import { AGREEMENT_VERSION, createAgreementSnapshot } from "@/lib/agreement/content";
 import { sendSigningRequest } from "@/lib/email";
+import { logInternalFailure } from "@/lib/internal-log";
 
 export async function createAgreementDraft(purchaseId: string) {
   const purchase = await prisma.purchase.findUnique({ where: { id: purchaseId }, include: { customer: true } });
@@ -34,17 +35,37 @@ export async function issueSigningRequest(agreementId: string, eventType: "SENT"
   const previous = { tokenHash: agreement.tokenHash, tokenExpiresAt: agreement.tokenExpiresAt, status: agreement.status, sentAt: agreement.sentAt };
   const { token, hash } = createSigningToken();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  await prisma.agreement.update({ where: { id: agreement.id }, data: { tokenHash: hash, tokenExpiresAt: expiresAt, tokenUsedAt: null, status: "SENT", sentAt: new Date(), events: { create: { eventType, metadata: { expiresAt: expiresAt.toISOString() } } } } });
+
   try {
-    const resendEmailId = await sendSigningRequest(agreement.customer.email, {
+    await prisma.agreement.update({ where: { id: agreement.id }, data: { tokenHash: hash, tokenExpiresAt: expiresAt, tokenUsedAt: null, status: "SENT", sentAt: new Date(), events: { create: { eventType, metadata: { expiresAt: expiresAt.toISOString() } } } } });
+  } catch (error) {
+    logInternalFailure("agreement_invitation_prepare_database_update", error);
+    throw error;
+  }
+
+  let resendEmailId: string;
+  try {
+    resendEmailId = await sendSigningRequest(agreement.customer.email, {
       customerName: agreement.customer.name, customerId: agreement.customer.customerId, tenure: agreement.purchase.tenure,
       amount: formatAud(agreement.purchase.amountPaid), signingUrl: `${appBaseUrl()}/sign/${token}`, expires: formatAest(expiresAt),
     });
-    return await prisma.agreement.update({ where: { id: agreement.id }, data: { resendCustomerEmailId: resendEmailId, events: { create: { eventType: "SIGNING_EMAIL_DELIVERED", metadata: { resendEmailId } } } } });
   } catch (error) {
-    await prisma.agreement.update({ where: { id: agreement.id }, data: { ...previous, events: { create: { eventType: "SIGNING_EMAIL_FAILED" } } } });
+    try {
+      await prisma.agreement.update({ where: { id: agreement.id }, data: { ...previous, events: { create: { eventType: "SIGNING_EMAIL_FAILED" } } } });
+    } catch (rollbackError) {
+      logInternalFailure("agreement_invitation_failure_rollback", rollbackError);
+    }
     throw error;
   }
+
+  let persistenceFailed = false;
+  try {
+    await prisma.agreement.update({ where: { id: agreement.id }, data: { resendCustomerEmailId: resendEmailId, events: { create: { eventType: "SIGNING_EMAIL_DELIVERED", metadata: { resendEmailId } } } } });
+  } catch (error) {
+    persistenceFailed = true;
+    logInternalFailure("agreement_invitation_success_database_update", error);
+  }
+  return { resendEmailId, persistenceFailed };
 }
 
 export async function findAgreementByRawToken(token: string) {
@@ -68,4 +89,3 @@ export async function recordAgreementViewed(agreementId: string, ip: string, use
     if (updated.count === 1) await tx.agreementEvent.create({ data: { agreementId, eventType: "VIEWED", ipAddress: ip, userAgent } });
   });
 }
-

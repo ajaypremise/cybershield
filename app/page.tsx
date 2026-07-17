@@ -2,7 +2,6 @@ import {
   ArrowRight,
   BadgeCheck,
   BriefcaseBusiness,
-  Building2,
   Check,
   ChevronDown,
   Cloud,
@@ -21,7 +20,6 @@ import {
   Printer,
   RadioTower,
   RefreshCw,
-  Router,
   Server,
   Shield,
   ShieldCheck,
@@ -301,3 +299,4 @@ export default function Home() {
     </main>
   );
 }
+

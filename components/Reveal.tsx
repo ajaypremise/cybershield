@@ -17,3 +17,4 @@ export function Reveal({ children, delay = 0, className = "" }: { children: Reac
     </motion.div>
   );
 }
+

@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PurchaseStatus {
+  PENDING
+  SENT
+  DELIVERY_FAILED
+}
+
+enum AgreementStatus {
+  DRAFT
+  SENT
+  VIEWED
+  SIGNED
+  EXPIRED
+  VOID
+}
+
+model Customer {
+  id              String      @id @default(uuid()) @db.Uuid
+  customerId      String      @unique @map("customer_id")
+  name            String
+  normalizedEmail String      @unique @map("normalized_email")
+  email           String
+  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+  purchases       Purchase[]
+  agreements      Agreement[]
+
+  @@index([name])
+  @@map("customers")
+}
+
+model Purchase {
+  id                 String         @id @default(uuid()) @db.Uuid
+  customerId         String         @map("customer_id") @db.Uuid
+  tenure             String
+  amountPaid         Decimal        @map("amount_paid") @db.Decimal(12, 2)
+  currency           String         @default("AUD") @db.VarChar(3)
+  agentName          String         @map("agent_name")
+  confirmationSentAt DateTime?      @map("confirmation_sent_at") @db.Timestamptz(6)
+  resendEmailId      String?        @map("resend_email_id")
+  status             PurchaseStatus @default(PENDING)
+  submissionKey      String         @unique @map("submission_key") @db.Uuid
+  createdAt          DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  customer           Customer       @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  agreements         Agreement[]
+
+  @@index([customerId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+  @@map("purchases")
+}
+
+model Agreement {
+  id                       String          @id @default(uuid()) @db.Uuid
+  customerId               String          @map("customer_id") @db.Uuid
+  purchaseId               String          @map("purchase_id") @db.Uuid
+  agreementNumber          String          @unique @map("agreement_number")
+  agreementVersion         String          @map("agreement_version")
+  agreementContentSnapshot String          @map("agreement_content_snapshot") @db.Text
+  tokenHash                String?         @unique @map("token_hash") @db.Char(64)
+  tokenExpiresAt           DateTime?       @map("token_expires_at") @db.Timestamptz(6)
+  tokenUsedAt              DateTime?       @map("token_used_at") @db.Timestamptz(6)
+  status                   AgreementStatus @default(DRAFT)
+  sentAt                   DateTime?       @map("sent_at") @db.Timestamptz(6)
+  viewedAt                 DateTime?       @map("viewed_at") @db.Timestamptz(6)
+  signedAt                 DateTime?       @map("signed_at") @db.Timestamptz(6)
+  typedSignerName          String?         @map("typed_signer_name")
+  signatureFileUrl         String?         @map("signature_file_url")
+  signedPdfUrl             String?         @map("signed_pdf_url")
+  signerIp                 String?         @map("signer_ip")
+  signerUserAgent          String?         @map("signer_user_agent") @db.Text
+  signerConsentText        String?         @map("signer_consent_text") @db.Text
+  documentHash             String?         @map("document_hash") @db.Char(64)
+  resendCustomerEmailId    String?         @map("resend_customer_email_id")
+  resendInternalEmailId    String?         @map("resend_internal_email_id")
+  createdAt                DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  customer                 Customer        @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  purchase                 Purchase        @relation(fields: [purchaseId], references: [id], onDelete: Restrict)
+  events                   AgreementEvent[]
+
+  @@index([customerId, createdAt(sort: Desc)])
+  @@index([purchaseId])
+  @@index([status, tokenExpiresAt])
+  @@map("agreements")
+}
+
+model AgreementEvent {
+  id          String    @id @default(uuid()) @db.Uuid
+  agreementId String    @map("agreement_id") @db.Uuid
+  eventType   String    @map("event_type")
+  timestamp   DateTime  @default(now()) @db.Timestamptz(6)
+  ipAddress   String?   @map("ip_address")
+  userAgent   String?   @map("user_agent") @db.Text
+  metadata    Json?
+  agreement   Agreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
+
+  @@index([agreementId, timestamp])
+  @@index([eventType, timestamp])
+  @@map("agreement_events")
+}
+
+model AdminSession {
+  id         String   @id @default(uuid()) @db.Uuid
+  tokenHash  String   @unique @map("token_hash") @db.Char(64)
+  csrfToken  String   @map("csrf_token") @db.Char(64)
+  expiresAt  DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastSeenAt DateTime @default(now()) @map("last_seen_at") @db.Timestamptz(6)
+
+  @@index([expiresAt])
+  @@map("admin_sessions")
+}
+
+model RateLimit {
+  id          String   @id @default(uuid()) @db.Uuid
+  scope       String
+  keyHash     String   @map("key_hash") @db.Char(64)
+  windowStart DateTime @map("window_start") @db.Timestamptz(6)
+  count       Int      @default(1)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([scope, keyHash, windowStart])
+  @@index([windowStart])
+  @@map("rate_limits")
+}
+
+model AdminAuditEvent {
+  id        String   @id @default(uuid()) @db.Uuid
+  action    String
+  targetId  String?  @map("target_id")
+  timestamp DateTime @default(now()) @db.Timestamptz(6)
+  ipAddress String?  @map("ip_address")
+  metadata  Json?
+
+  @@index([timestamp(sort: Desc)])
+  @@index([action, timestamp])
+  @@map("admin_audit_events")
+}
+

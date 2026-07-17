@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Currency {
+  AUD
+  USD
+  GBP
+}
+
 enum PurchaseStatus {
   PENDING
   SENT
@@ -22,70 +28,99 @@ enum AgreementStatus {
   VOID
 }
 
+enum SendStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
 model Customer {
-  id              String      @id @default(uuid()) @db.Uuid
-  customerId      String      @unique @map("customer_id")
-  name            String
-  normalizedEmail String      @unique @map("normalized_email")
-  email           String
-  createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
-  purchases       Purchase[]
-  agreements      Agreement[]
+  id                  String             @id @default(uuid()) @db.Uuid
+  customerSerial      BigInt             @unique @default(autoincrement()) @map("customer_serial")
+  customerId          String             @unique @map("customer_id")
+  firstName           String             @map("first_name")
+  lastName            String?            @map("last_name")
+  name                String
+  normalizedEmail     String             @unique @map("normalized_email")
+  email               String
+  phone               String?
+  normalizedPhone     String?            @unique @map("normalized_phone")
+  alternatePhone      String?            @map("alternate_phone")
+  address             String
+  createdByAgentName  String             @map("created_by_agent_name")
+  lastActionAgentName String             @map("last_action_agent_name")
+  createdAt           DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  purchases           Purchase[]
+  agreements          Agreement[]
+  notes               InternalNote[]
+  confirmationSends   ConfirmationSend[]
+  agreementSends      AgreementSend[]
 
   @@index([name])
+  @@index([phone])
+  @@index([address])
   @@map("customers")
 }
 
 model Purchase {
-  id                 String         @id @default(uuid()) @db.Uuid
-  customerId         String         @map("customer_id") @db.Uuid
-  tenure             String
-  amountPaid         Decimal        @map("amount_paid") @db.Decimal(12, 2)
-  currency           String         @default("AUD") @db.VarChar(3)
-  agentName          String         @map("agent_name")
-  confirmationSentAt DateTime?      @map("confirmation_sent_at") @db.Timestamptz(6)
-  resendEmailId      String?        @map("resend_email_id")
-  status             PurchaseStatus @default(PENDING)
-  submissionKey      String         @unique @map("submission_key") @db.Uuid
-  createdAt          DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt          DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
-  customer           Customer       @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  agreements         Agreement[]
+  id                  String             @id @default(uuid()) @db.Uuid
+  customerId          String             @map("customer_id") @db.Uuid
+  tenure              String             @default("CyberShield service coverage")
+  salesAmount         Decimal            @map("amount_paid") @db.Decimal(12, 2)
+  currency            Currency           @default(AUD)
+  saleDate            DateTime           @map("sale_date") @db.Date
+  agentName           String             @map("agent_name")
+  createdByAgentName  String             @map("created_by_agent_name")
+  lastActionAgentName String             @map("last_action_agent_name")
+  primaryIssue        String             @map("primary_issue") @db.Text
+  serviceDetails      String             @map("service_details") @db.Text
+  confirmationSentAt  DateTime?          @map("confirmation_sent_at") @db.Timestamptz(6)
+  resendEmailId       String?            @map("resend_email_id")
+  status              PurchaseStatus     @default(PENDING)
+  submissionKey       String             @unique @map("submission_key") @db.Uuid
+  createdAt           DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  customer            Customer           @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  agreements          Agreement[]
+  confirmationSends   ConfirmationSend[]
 
   @@index([customerId, createdAt(sort: Desc)])
   @@index([status, createdAt(sort: Desc)])
+  @@index([currency, saleDate])
   @@map("purchases")
 }
 
 model Agreement {
-  id                       String          @id @default(uuid()) @db.Uuid
-  customerId               String          @map("customer_id") @db.Uuid
-  purchaseId               String          @map("purchase_id") @db.Uuid
-  agreementNumber          String          @unique @map("agreement_number")
-  agreementVersion         String          @map("agreement_version")
-  agreementContentSnapshot String          @map("agreement_content_snapshot") @db.Text
-  tokenHash                String?         @unique @map("token_hash") @db.Char(64)
-  tokenExpiresAt           DateTime?       @map("token_expires_at") @db.Timestamptz(6)
-  tokenUsedAt              DateTime?       @map("token_used_at") @db.Timestamptz(6)
-  status                   AgreementStatus @default(DRAFT)
-  sentAt                   DateTime?       @map("sent_at") @db.Timestamptz(6)
-  viewedAt                 DateTime?       @map("viewed_at") @db.Timestamptz(6)
-  signedAt                 DateTime?       @map("signed_at") @db.Timestamptz(6)
-  typedSignerName          String?         @map("typed_signer_name")
-  signatureFileUrl         String?         @map("signature_file_url")
-  signedPdfUrl             String?         @map("signed_pdf_url")
-  signerIp                 String?         @map("signer_ip")
-  signerUserAgent          String?         @map("signer_user_agent") @db.Text
-  signerConsentText        String?         @map("signer_consent_text") @db.Text
-  documentHash             String?         @map("document_hash") @db.Char(64)
-  resendCustomerEmailId    String?         @map("resend_customer_email_id")
-  resendInternalEmailId    String?         @map("resend_internal_email_id")
-  createdAt                DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt                DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
-  customer                 Customer        @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  purchase                 Purchase        @relation(fields: [purchaseId], references: [id], onDelete: Restrict)
+  id                       String           @id @default(uuid()) @db.Uuid
+  customerId               String           @map("customer_id") @db.Uuid
+  purchaseId               String           @map("purchase_id") @db.Uuid
+  agreementNumber          String           @unique @map("agreement_number")
+  agreementVersion         String           @map("agreement_version")
+  agreementContentSnapshot String           @map("agreement_content_snapshot") @db.Text
+  tokenHash                String?          @unique @map("token_hash") @db.Char(64)
+  tokenExpiresAt           DateTime?        @map("token_expires_at") @db.Timestamptz(6)
+  tokenUsedAt              DateTime?        @map("token_used_at") @db.Timestamptz(6)
+  status                   AgreementStatus  @default(DRAFT)
+  sentAt                   DateTime?        @map("sent_at") @db.Timestamptz(6)
+  viewedAt                 DateTime?        @map("viewed_at") @db.Timestamptz(6)
+  signedAt                 DateTime?        @map("signed_at") @db.Timestamptz(6)
+  typedSignerName          String?          @map("typed_signer_name")
+  signatureFileUrl         String?          @map("signature_file_url")
+  signedPdfUrl             String?          @map("signed_pdf_url")
+  signerIp                 String?          @map("signer_ip")
+  signerUserAgent          String?          @map("signer_user_agent") @db.Text
+  signerConsentText        String?          @map("signer_consent_text") @db.Text
+  documentHash             String?          @map("document_hash") @db.Char(64)
+  resendCustomerEmailId    String?          @map("resend_customer_email_id")
+  resendInternalEmailId    String?          @map("resend_internal_email_id")
+  lastActionAgentName      String           @default("Legacy import") @map("last_action_agent_name")
+  createdAt                DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  customer                 Customer         @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  purchase                 Purchase         @relation(fields: [purchaseId], references: [id], onDelete: Restrict)
   events                   AgreementEvent[]
+  sends                    AgreementSend[]
 
   @@index([customerId, createdAt(sort: Desc)])
   @@index([purchaseId])
@@ -108,6 +143,63 @@ model AgreementEvent {
   @@map("agreement_events")
 }
 
+model InternalNote {
+  id         String   @id @default(uuid()) @db.Uuid
+  customerId String   @map("customer_id") @db.Uuid
+  noteText   String   @map("note_text") @db.Text
+  agentName  String   @map("agent_name")
+  source     String
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId, createdAt(sort: Desc)])
+  @@map("internal_notes")
+}
+
+model ConfirmationSend {
+  id                      String     @id @default(uuid()) @db.Uuid
+  customerId              String     @map("customer_id") @db.Uuid
+  purchaseId              String     @map("purchase_id") @db.Uuid
+  sendType                String     @map("send_type")
+  status                  SendStatus @default(PENDING)
+  resendEmailId           String?    @map("resend_email_id")
+  idempotencyKey          String     @unique @map("idempotency_key") @db.Uuid
+  attemptedByAgentName    String     @map("attempted_by_agent_name")
+  providerErrorName       String?    @map("provider_error_name")
+  providerErrorMessage    String?    @map("provider_error_message")
+  providerErrorStatusCode Int?       @map("provider_error_status_code")
+  createdAt               DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  completedAt             DateTime?  @map("completed_at") @db.Timestamptz(6)
+  customer                Customer   @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  purchase                Purchase   @relation(fields: [purchaseId], references: [id], onDelete: Restrict)
+
+  @@index([customerId, createdAt(sort: Desc)])
+  @@index([purchaseId, createdAt(sort: Desc)])
+  @@map("confirmation_sends")
+}
+
+model AgreementSend {
+  id                      String     @id @default(uuid()) @db.Uuid
+  customerId              String     @map("customer_id") @db.Uuid
+  agreementId             String     @map("agreement_id") @db.Uuid
+  sendType                String     @map("send_type")
+  status                  SendStatus @default(PENDING)
+  resendEmailId           String?    @map("resend_email_id")
+  idempotencyKey          String     @unique @map("idempotency_key") @db.Uuid
+  attemptedByAgentName    String     @map("attempted_by_agent_name")
+  providerErrorName       String?    @map("provider_error_name")
+  providerErrorMessage    String?    @map("provider_error_message")
+  providerErrorStatusCode Int?       @map("provider_error_status_code")
+  createdAt               DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  completedAt             DateTime?  @map("completed_at") @db.Timestamptz(6)
+  customer                Customer   @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  agreement               Agreement  @relation(fields: [agreementId], references: [id], onDelete: Restrict)
+
+  @@index([customerId, createdAt(sort: Desc)])
+  @@index([agreementId, createdAt(sort: Desc)])
+  @@map("agreement_sends")
+}
+
 model AdminSession {
   id         String   @id @default(uuid()) @db.Uuid
   tokenHash  String   @unique @map("token_hash") @db.Char(64)
@@ -118,6 +210,18 @@ model AdminSession {
 
   @@index([expiresAt])
   @@map("admin_sessions")
+}
+
+model AgentSession {
+  id         String   @id @default(uuid()) @db.Uuid
+  tokenHash  String   @unique @map("token_hash") @db.Char(64)
+  csrfToken  String   @map("csrf_token") @db.Char(64)
+  expiresAt  DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastSeenAt DateTime @default(now()) @map("last_seen_at") @db.Timestamptz(6)
+
+  @@index([expiresAt])
+  @@map("agent_sessions")
 }
 
 model RateLimit {
@@ -137,12 +241,7 @@ model AdminAuditEvent {
   id        String   @id @default(uuid()) @db.Uuid
   action    String
   targetId  String?  @map("target_id")
-  timestamp DateTime @default(now()) @db.Timestamptz(6)
-  ipAddress String?  @map("ip_address")
-  metadata  Json?
-
-  @@index([timestamp(sort: Desc)])
-  @@index([action, timestamp])
-  @@map("admin_audit_events")
-}
-
+  actorRole String   @default("ADMIN") @map("actor_role")
+  actorName String?  @map("actor_name")
+  success   Boolean  @default(true)
+-¸Û¯m¢G§²ÚîÆ­y×f–6SÂ÷FƒãÇFƒäFVÆ—fW'“Â÷FƒãÇFƒävVçG3Â÷FƒãÂ÷G#ãÂ÷F†VCãÇF&öG“ç¶7W7FöÖW"çW&6†6W2æÖ‚‡W&6†6R’ÓâÇG"¶W“×·W&6†6Ræ–GÓãÇFCç·W&6†6Ræ7W'&Væ7—Ò·W&6†6Rç6ÆW4Ö÷VçBçFôf—†VBƒ"—ÓÇ7ãç·W&6†6Rç6ÆTFFRçFô•4õ7G&–ær‚’ç6Æ–6RƒÂ—ÓÂ÷7ããÂ÷FCãÇFCç·W&6†6Rç&–Ö'”—77VWÓÇ7ãç·W&6†6Rç6W'f–6TFWF–Ç7ÓÂ÷7ããÂ÷FCãÇFCç·W&6†6Rç7FGW7ÓÇ7ãç·W&6†6Ræ6öæf—&ÖF–öå6VæG2æÖ‚‡6VæB’ÓâG·6VæBç6VæEG—WÓ¢G·6VæBç7FGW7ÒG·6VæBç&W6VæDVÖ–Ä–Bò‚G·6VæBç&W6VæDVÖ–Ä–GÒ–¢"'Ö’æ¦ö–â‚"+r"’ÇÂ$æòGFV×G2'ÓÂ÷7ããÂ÷FCãÇFCç·W&6†6Ræ7&VFVD'”vVçDæÖWÓÇ7ãäÆ7C¢·W&6†6RæÆ7D7F–öävVçDæÖWÓÂ÷7ããÂ÷FCãÂ÷G#â—ÓÂ÷F&öG“ãÂ÷F&ÆSãÂöF—cãÂ÷6V7F–öãà¢Ç6V7F–öâ6Æ74æÖSÒ&–çFW&æÂÖ6&B"7G–ÆS×·²Ö&v–åF÷¢#ã#W&VÒ"×ÓãÆF—b6Æ74æÖSÒ&–çFW&æÂ×6V7F–öâÖ†VF–ær#ãÆƒ#äw&VVÖVçB†—7F÷'“Âöƒ#ãÂöF—cãÆF—b6Æ74æÖSÒ&–çFW&æÂ×F&ÆR×w&#ãÇF&ÆR6Æ74æÖSÒ&–çFW&æÂ×F&ÆR#ãÇF†VCãÇG#ãÇFƒäw&VVÖVçCÂ÷FƒãÇFƒå7FGW3Â÷FƒãÇFƒäFVÆ—fW'“Â÷FƒãÇFƒå6–væVBFö7VÖVçCÂ÷FƒãÂ÷G#ãÂ÷F†VCãÇF&öG“ç¶7W7FöÖW"æw&VVÖVçG2æÖ‚†w&VVÖVçB’ÓâÇG"¶W“×¶w&VVÖVçBæ–GÓãÇFCç¶w&VVÖVçBæw&VVÖVçDçVÖ&W'ÓÇ7ãçg¶w&VVÖVçBæw&VVÖVçEfW'6–öçÓÂ÷7ããÂ÷FCãÇFCç¶w&VVÖVçBç7FGW7ÓÇ7ãç¶w&VVÖVçBç6–væVDCòçFô•4õ7G&–ær‚—ÓÂ÷7ããÂ÷FCãÇFCç¶w&VVÖVçBç6VæG2æÖ‚‡6VæB’ÓâG·6VæBç6VæEG—WÓ¢G·6VæBç7FGW7Ö’æ¦ö–â‚"+r"’ÇÂ$æòGFV×G2'ÓÂ÷FCãÇFCç¶w&VVÖVçBç6–væVEFeW&ÂòÄÆ–æ²‡&Vc×¶ö’ö–çFW&æÂöw&VVÖVçG2òG¶w&VVÖVçBæ–GÒöF÷væÆöFÓäF÷væÆöB6–væVBDcÂôÆ–æ³â¢$æ÷B6–væVB'ÓÂ÷FCãÂ÷G#â—ÓÂ÷F&öG“ãÂ÷F&ÆSãÂöF—cãÂ÷6V7F–öãà¢Âô–çFW&æÅ6†VÆÃã°§Ğ 

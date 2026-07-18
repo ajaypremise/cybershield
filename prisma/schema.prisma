@@ -13,6 +13,22 @@ enum Currency {
   GBP
 }
 
+enum ServiceType {
+  NETWORK_SECURITY
+  IDENTITY_IP_PROTECTOR
+}
+
+enum CoverageType {
+  FIXED
+  LIFETIME
+}
+
+enum TenureUnit {
+  DAYS
+  MONTHS
+  YEARS
+}
+
 enum PurchaseStatus {
   PENDING
   SENT
@@ -64,30 +80,45 @@ model Customer {
 }
 
 model Purchase {
-  id                  String             @id @default(uuid()) @db.Uuid
-  customerId          String             @map("customer_id") @db.Uuid
-  tenure              String             @default("CyberShield service coverage")
-  salesAmount         Decimal            @map("amount_paid") @db.Decimal(12, 2)
-  currency            Currency           @default(AUD)
-  saleDate            DateTime           @map("sale_date") @db.Date
-  agentName           String             @map("agent_name")
-  createdByAgentName  String             @map("created_by_agent_name")
-  lastActionAgentName String             @map("last_action_agent_name")
-  primaryIssue        String             @map("primary_issue") @db.Text
-  serviceDetails      String             @map("service_details") @db.Text
-  confirmationSentAt  DateTime?          @map("confirmation_sent_at") @db.Timestamptz(6)
-  resendEmailId       String?            @map("resend_email_id")
-  status              PurchaseStatus     @default(PENDING)
-  submissionKey       String             @unique @map("submission_key") @db.Uuid
-  createdAt           DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt           DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
-  customer            Customer           @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  agreements          Agreement[]
-  confirmationSends   ConfirmationSend[]
+  id                         String             @id @default(uuid()) @db.Uuid
+  customerId                 String             @map("customer_id") @db.Uuid
+  tenure                     String             @default("CyberShield service coverage")
+  salesAmount                Decimal            @map("amount_paid") @db.Decimal(12, 2)
+  currency                   Currency           @default(AUD)
+  saleDate                   DateTime           @map("sale_date") @db.Date
+  coverageStartDate          DateTime?          @map("coverage_start_date") @db.Date
+  coverageEndDate            DateTime?          @map("coverage_end_date") @db.Date
+  coverageType               CoverageType?      @map("coverage_type")
+  tenureValue                Int?               @map("tenure_value")
+  tenureUnit                 TenureUnit?        @map("tenure_unit")
+  serviceType                ServiceType?       @map("service_type")
+  serviceDisplayNameSnapshot String?            @map("service_display_name_snapshot")
+  serviceSummarySnapshot     String?            @map("service_summary_snapshot") @db.Text
+  emailTemplateVersion       String?            @map("email_template_version")
+  pdfTemplateVersion         String?            @map("pdf_template_version")
+  agreementTemplateVersion   String?            @map("agreement_template_version")
+  confirmationNumber         String?            @unique @map("confirmation_number")
+  legacyReviewRequired       Boolean            @default(false) @map("legacy_review_required")
+  agentName                  String             @map("agent_name")
+  createdByAgentName         String             @map("created_by_agent_name")
+  lastActionAgentName        String             @map("last_action_agent_name")
+  primaryIssue               String             @map("primary_issue") @db.Text
+  serviceDetails             String             @map("service_details") @db.Text
+  confirmationSentAt         DateTime?          @map("confirmation_sent_at") @db.Timestamptz(6)
+  resendEmailId              String?            @map("resend_email_id")
+  status                     PurchaseStatus     @default(PENDING)
+  submissionKey              String             @unique @map("submission_key") @db.Uuid
+  createdAt                  DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                  DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+  customer                   Customer           @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  agreements                 Agreement[]
+  confirmationSends          ConfirmationSend[]
 
   @@index([customerId, createdAt(sort: Desc)])
   @@index([status, createdAt(sort: Desc)])
   @@index([currency, saleDate])
+  @@index([serviceType, coverageType, saleDate])
+  @@index([legacyReviewRequired])
   @@map("purchases")
 }
 
@@ -253,4 +284,3 @@ model AdminAuditEvent {
   @@index([actorRole, timestamp])
   @@map("admin_audit_events")
 }
-

@@ -1,9 +1,2 @@
 import type { MetadataRoute } from "next";
-
-export default function robots(): MetadataRoute.Robots {
-  return {
-    rules: { userAgent: "*", allow: "/", disallow: ["/email", "/agreement", "/admin", "/sign", "/api"] },
-    sitemap: "https://www.cybershieldau.com.au/sitemap.xml",
-  };
-}
-
+export default function robots():MetadataRoute.Robots{return{rules:{userAgent:"*",allow:"/",disallow:["/portal","/email","/agreement","/admin","/sign","/api"]},sitemap:"https://www.cybershieldau.com.au/sitemap.xml"};}

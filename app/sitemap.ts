@@ -1,13 +1,3 @@
 import type { MetadataRoute } from "next";
-
-export default function sitemap(): MetadataRoute.Sitemap {
-  return [
-    {
-      url: "https://www.cybershieldau.com.au",
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 1,
-    },
-  ];
-}
-
+const paths=["/","/services","/services/network-security","/services/identity-ip-protector","/how-it-works","/about","/contact","/privacy","/terms","/service-terms"];
+export default function sitemap():MetadataRoute.Sitemap{return paths.map((path)=>({url:`https://www.cybershieldau.com.au${path}`,changeFrequency:path==="/"?"weekly":"monthly",priority:path==="/"?1:path.startsWith("/services/")?.9:.7}));}

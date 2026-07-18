@@ -1,50 +1,5 @@
-import type { Metadata, Viewport } from "next";
-import "./globals.css";
-
-export const metadata: Metadata = {
-  metadataBase: new URL("https://www.cybershieldau.com.au"),
-  title: {
-    default: "Managed Cybersecurity Services Australia | CyberShield",
-    template: "%s | CyberShield",
-  },
-  description:
-    "CyberShield protects your entire business network with layered, enterprise-grade cybersecurity—customised for every user, device, location and cloud service.",
-  keywords: [
-    "managed cybersecurity Australia",
-    "business network security",
-    "managed firewall",
-    "enterprise cyber protection",
-    "CyberShield Australia",
-  ],
-  alternates: { canonical: "/" },
-  openGraph: {
-    title: "Enterprise Cyber Protection. Without the Complexity.",
-    description: "Layered, continuously managed protection for your entire business network.",
-    url: "/",
-    siteName: "CyberShield",
-    locale: "en_AU",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Enterprise Cyber Protection. Without the Complexity.",
-    description: "Layered, continuously managed protection for your entire business network.",
-  },
-  robots: { index: true, follow: true },
-};
-
-export const viewport: Viewport = {
-  themeColor: "#020712",
-  colorScheme: "dark",
-  width: "device-width",
-  initialScale: 1,
-};
-
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <html lang="en-AU" className="scroll-smooth">
-      <body>{children}</body>
-    </html>
-  );
-}
+import type { Metadata,Viewport } from "next"; import "./globals.css";
+export const metadata:Metadata={metadataBase:new URL("https://www.cybershieldau.com.au"),title:{default:"Cybersecurity Support Australia | CyberShield",template:"%s | CyberShield"},description:"Practical network, device, identity and privacy cybersecurity support for Australian homes and businesses.",robots:{index:true,follow:true}};
+export const viewport:Viewport={themeColor:"#111111",colorScheme:"dark",width:"device-width",initialScale:1};
+export default function RootLayout({children}:{children:React.ReactNode}){const structured={"@context":"https://schema.org","@type":"Organization",name:"CyberShield Australia",url:"https://www.cybershieldau.com.au",email:"info@cybershieldau.com.au",telephone:"1800 997 002",address:{"@type":"PostalAddress",streetAddress:"121 Collins St",addressLocality:"Melbourne",addressRegion:"VIC",postalCode:"3000",addressCountry:"AU"}};return <html lang="en-AU"><body>{children}<script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structured)}}/></body></html>}
 

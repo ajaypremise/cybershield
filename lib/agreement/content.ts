@@ -1,38 +1,8 @@
-export const AGREEMENT_VERSION = "1.1.0";
-export const CONSENT_TEXT = "I confirm that I am the person named above, that I have reviewed and accept this CyberShield Agreement, that I intend this electronic signature to be legally binding, and that I consent to receiving and signing this agreement electronically.";
-
-const CLAUSES = `1. Parties and service
-This agreement is between CyberShield Australia and the named customer. CyberShield will provide the cybersecurity and support services confirmed separately with the customer.
-
-2. Customer responsibilities
-The customer must provide accurate information, maintain suitable connectivity, supported equipment, backups and reasonable account security, and follow reasonable security instructions.
-
-3. Service limitations
-Cybersecurity reduces risk but cannot guarantee prevention, detection or remediation of every incident. Third-party systems, outages, vulnerabilities and user actions can affect outcomes.
-
-4. Remote support
-Where requested or included, the customer authorises remote access to agreed systems for setup, diagnosis, maintenance and support.
-
-5. Data handling and privacy
-CyberShield may process contact, account, device, network, support and security-event information reasonably required to provide and secure the services, subject to applicable Australian privacy obligations.
-
-6. Fees, cancellation and statutory rights
-Fees and any renewal arrangements are those separately confirmed with the customer. Nothing in this agreement excludes rights or remedies that cannot lawfully be excluded under the Australian Consumer Law.
-
-7. Liability
-To the maximum extent permitted by law, liability is subject to any limitations stated in the applicable service schedule. Mandatory consumer guarantees remain unaffected.
-
-8. Governing law
-This agreement is governed by the laws of Victoria, Australia, subject to any mandatory law that applies otherwise.
-
-9. Electronic signature
-The customer consents to receive and sign this agreement electronically. The signing workflow is intended to identify the signer and record legally binding acceptance to the extent permitted by law.
-
-10. Acceptance
-By signing, the signer confirms they are the customer or are authorised to accept this agreement and have reviewed the complete agreement.`;
-
-export type AgreementDetails = { agreementNumber: string; customerId: string; customerName: string; email: string; address: string; coverageDate: string };
-export function createAgreementSnapshot(details: AgreementDetails) {
-  return [`CYBERSHIELD SERVICE AGREEMENT`, `Agreement number: ${details.agreementNumber}`, `Version: ${AGREEMENT_VERSION}`, `Customer ID: ${details.customerId}`, `Customer: ${details.customerName}`, `Email: ${details.email}`, `Service address: ${details.address}`, `Coverage date: ${details.coverageDate}`, "", CLAUSES].join("\n");
-}
-
+import type { CoverageType, ServiceType, TenureUnit } from "@prisma/client"; import { SERVICES, coverageLabel } from "@/lib/services";
+export const AGREEMENT_VERSION="2.0.0"; export const CONSENT_TEXT="I confirm that I am the person named above, that I have reviewed and accept this CyberShield Agreement, that I intend this electronic signature to be legally binding, and that I consent to receiving and signing this agreement electronically.";
+export type AgreementDetails={agreementNumber:string;customerId:string;customerName:string;email:string;address:string;serviceType:ServiceType;amount:string;saleDate:string;coverageStart:string;coverageEnd?:string;coverageType:CoverageType;tenureValue:number|null;tenureUnit:TenureUnit|null};
+const common=`1. Parties\nThis agreement is between CyberShield Australia and the customer identified above.\n\n2. Service selected\nThe selected service and transaction details shown above form part of this agreement.\n\n4. Service delivery and support\nCyberShield provides assistance during published support hours and within the purchased scope.\n\n5. Customer responsibilities\nThe customer must provide accurate information, maintain supported devices, backups and account security, and follow reasonable instructions.\n\n6. Access and authorisation\nThe customer authorises agreed remote or local access reasonably required to provide requested support.\n\n7. Fees and payment\nThe amount shown above records the agreed transaction. Additional work or third-party services require separate agreement.\n\n10. Limitations and exclusions\nServices depend on the purchased scope, customer cooperation, compatible systems, service availability and third parties.\n\n11. No absolute security guarantee\nCybersecurity reduces risk but cannot guarantee prevention, detection or remediation of every threat, attack, fraud attempt or incident.\n\n12. Privacy and handling of information\nCyberShield may process contact, device, network and support information reasonably required to deliver and secure the service, subject to applicable Australian privacy obligations.\n\n13. Third-party software and services\nThird-party products remain subject to their own terms, availability and licensing. They are not included indefinitely unless expressly recorded.\n\n14. Suspension and termination\nCyberShield may suspend or terminate service where reasonably necessary for non-payment, misuse, security, legal compliance, service unavailability or material breach, subject to applicable law.\n\n15. Complaints and support\nContact 1800 997 002 or info@cybershieldau.com.au.\n\n16. General terms\nThis agreement is governed by Victorian law, subject to mandatory rights including the Australian Consumer Law.\n\n17. Acceptance and digital signature\nThe signer confirms authority, review and acceptance and consents to electronic communication and signature.`;
+const network=`3. Scope of Network Security services\nDepending on the purchased scope, services may include covered-device security assistance, network guidance, update and installation help, optimisation support, security-configuration guidance and response assistance for suspicious activity.`;
+const identity=`3. Scope of Identity & IP Protector services\nDepending on the purchased scope, services may include identity-risk assistance, privacy and IP guidance, data-breach and account-security response, fraud-risk guidance and related device or network-security assistance.`;
+const lifetime=`9. Lifetime coverage terms\nLifetime Coverage applies to this purchased service arrangement under this agreement. It remains subject to customer compliance, reasonable use, service and third-party availability, applicable law, technology and product changes, exclusions, suspension and termination rights. It does not promise that third-party licences, monitoring subscriptions, vendor services or external software are included forever unless expressly recorded.`;
+export function createAgreementSnapshot(d:AgreementDetails){const svc=SERVICES[d.serviceType];const cover=coverageLabel({coverageType:d.coverageType,tenureValue:d.tenureValue,tenureUnit:d.tenureUnit});return [`CYBERSHIELD ${svc.name.toUpperCase()} SERVICE AGREEMENT`,`Agreement number: ${d.agreementNumber}`,`Version: ${AGREEMENT_VERSION}`,`Customer ID: ${d.customerId}`,`Customer: ${d.customerName}`,`Email: ${d.email}`,`Covered address: ${d.address}`,`Selected service: ${svc.name}`,`Amount: ${d.amount}`,`Sale date: ${d.saleDate}`,`Coverage start: ${d.coverageStart}`,`Coverage: ${cover}`,...(d.coverageEnd?[`Coverage end: ${d.coverageEnd}`]:[]),"",common.replace("\n\n4.",`\n\n${d.serviceType==="NETWORK_SECURITY"?network:identity}\n\n4.`),...(d.coverageType==="LIFETIME"?["",lifetime]:[])].join("\n");}

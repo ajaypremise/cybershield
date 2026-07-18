@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ send: vi.fn() }));
 vi.mock("resend", () => ({ Resend: class { emails = { send: mocks.send }; } }));
 import { sendCompletedAgreement, sendPurchaseConfirmation } from "@/lib/email";
-const props = { firstName: "Jane", lastName: "Ng", customerId: "CS-2026-000001", address: "1 Test St", coverageDate: "2026-07-17" };
+import { confirmationFixture as props } from "./fixtures";
 beforeEach(() => { mocks.send.mockReset(); process.env.RESEND_API_KEY = "re_test"; process.env.RESEND_FROM_EMAIL = "CyberShield <support@updates.cybershieldau.com.au>"; process.env.CYBERSHIELD_INTERNAL_EMAIL = "info@cybershieldau.com.au"; vi.spyOn(console, "info").mockImplementation(() => undefined); vi.spyOn(console, "error").mockImplementation(() => undefined); });
 afterEach(() => vi.restoreAllMocks());
 describe("Resend workflows", () => {

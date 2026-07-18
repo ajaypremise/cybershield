@@ -1,26 +1,7 @@
-import { Heading, Text } from "@react-email/components";
+import { Heading, Section, Text } from "@react-email/components";
 import { EmailShell } from "@/components/email/EmailShell";
-
-export type PurchaseEmailProps = {
-  firstName: string; lastName?: string | null; customerId: string; address: string; coverageDate: string;
-};
-
-export function PurchaseConfirmationEmail(props: PurchaseEmailProps) {
-  const name = [props.firstName, props.lastName].filter(Boolean).join(" ");
-  return <EmailShell preview={`CyberShield confirmation for ${props.customerId}`}>
-    <Heading style={{ margin: "0 0 16px", color: "#111", fontSize: 26 }}>Your CyberShield confirmation</Heading>
-    <Text style={copy}>Dear {name},</Text>
-    <Text style={copy}>Thank you for choosing CyberShield. Your customer ID is <strong>{props.customerId}</strong>.</Text>
-    <Text style={copy}>Service address: {props.address}</Text>
-    <Text style={copy}>Coverage date: {props.coverageDate}</Text>
-    <Text style={copy}>Your confirmation PDF is attached. For assistance, contact info@cybershieldau.com.au or call 1800 997 002.</Text>
-  </EmailShell>;
-}
-
-export function purchaseConfirmationText(props: PurchaseEmailProps) {
-  const name = [props.firstName, props.lastName].filter(Boolean).join(" ");
-  return `Dear ${name},\n\nThank you for choosing CyberShield.\nCustomer ID: ${props.customerId}\nService address: ${props.address}\nCoverage date: ${props.coverageDate}\n\nYour confirmation PDF is attached.\nCyberShield Australia`;
-}
-
-const copy = { color: "#3d4652", fontSize: 14, lineHeight: "23px" };
+export type PurchaseEmailProps = { customerName: string; customerId: string; confirmationNumber: string; serviceName: string; serviceAreas: readonly string[]; amount: string; address: string; saleDate: string; coverageStart: string; coverageEnd?: string; coverageDuration: string };
+export function PurchaseConfirmationEmail(p: PurchaseEmailProps) { return <EmailShell preview={`${p.serviceName} confirmation — ${p.customerId}`}><Heading style={{ margin: "0 0 14px", color: "#111", fontSize: 27 }}>Your {p.serviceName} confirmation</Heading><Text style={copy}>Dear {p.customerName},</Text><Text style={copy}>Welcome to CyberShield. This email confirms your purchase of the CyberShield {p.serviceName} service. Your confirmation document is attached.</Text><Section style={{ border: "1px solid #ddd", borderLeft: "5px solid #f5c400", padding: "16px 18px", margin: "22px 0" }}><Text style={row}><b>Customer ID:</b> {p.customerId}</Text><Text style={row}><b>Confirmation:</b> {p.confirmationNumber}</Text><Text style={row}><b>Service:</b> {p.serviceName}</Text><Text style={row}><b>Amount:</b> {p.amount}</Text><Text style={row}><b>Covered address:</b> {p.address}</Text><Text style={row}><b>Sale date:</b> {p.saleDate}</Text><Text style={row}><b>Coverage:</b> {p.coverageDuration}</Text><Text style={row}><b>Starts:</b> {p.coverageStart}</Text>{p.coverageEnd && <Text style={row}><b>Ends:</b> {p.coverageEnd}</Text>}</Section><Heading as="h2" style={{ fontSize: 18 }}>Service areas</Heading>{p.serviceAreas.map((area) => <Text key={area} style={row}>• {area}</Text>)}<Heading as="h2" style={{ fontSize: 18 }}>Next step</Heading><Text style={copy}>You may receive a separate secure link to review and sign your CyberShield Service Agreement.</Text><Text style={small}>Service features depend on the purchased scope and signed agreement. No cybersecurity provider can guarantee prevention of every threat, attack, fraud attempt or security incident.</Text><Text style={copy}>CyberShield Support Team</Text></EmailShell>; }
+export function purchaseConfirmationText(p: PurchaseEmailProps) { return `Dear ${p.customerName},\n\nThis confirms your CyberShield ${p.serviceName} service.\nCustomer ID: ${p.customerId}\nConfirmation: ${p.confirmationNumber}\nAmount: ${p.amount}\nCovered address: ${p.address}\nSale date: ${p.saleDate}\nCoverage: ${p.coverageDuration}\nCoverage start: ${p.coverageStart}${p.coverageEnd ? `\nCoverage end: ${p.coverageEnd}` : ""}\n\nService areas:\n${p.serviceAreas.map((x) => `- ${x}`).join("\n")}\n\nThe complete scope and limitations are governed by the applicable signed agreement. No cybersecurity service can guarantee prevention of every incident.\n\nCyberShield Support Team`; }
+const copy = { color: "#3d4652", fontSize: 14, lineHeight: "23px" }; const row = { ...copy, margin: "4px 0" }; const small = { ...copy, fontSize: 12, color: "#626b78" };
 

@@ -1,0 +1,386 @@
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 80% 10%, rgba(250, 204, 21, 0.09), transparent 32%),
+    linear-gradient(135deg, #090909 0%, #111 55%, #080808 100%);
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.glow {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: rgba(250, 204, 21, 0.06);
+  filter: blur(90px);
+  top: 10%;
+  right: -150px;
+  pointer-events: none;
+}
+
+.header {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 30px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 1.4px;
+}
+
+.shield {
+  color: #facc15;
+  font-size: 18px;
+}
+
+.customerLabel {
+  color: #9ca3af;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.hero {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 70px 24px 90px;
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.copy {
+  max-width: 650px;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 8px 12px;
+  border: 1px solid rgba(250, 204, 21, 0.32);
+  background: rgba(250, 204, 21, 0.07);
+  border-radius: 999px;
+  color: #facc15;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  margin-bottom: 25px;
+}
+
+.copy h1 {
+  margin: 0;
+  font-size: clamp(45px, 5.5vw, 75px);
+  line-height: 0.99;
+  letter-spacing: -3px;
+}
+
+.copy h1 span {
+  color: #facc15;
+}
+
+.lead {
+  color: #c7c7c7;
+  font-size: 18px;
+  line-height: 1.7;
+  margin: 27px 0 30px;
+  max-width: 610px;
+}
+
+.points {
+  display: grid;
+  gap: 15px;
+}
+
+.points div {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  color: #e5e7eb;
+  font-size: 15px;
+}
+
+.points span {
+  width: 25px;
+  height: 25px;
+  min-width: 25px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #facc15;
+  color: #111;
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.note {
+  margin-top: 28px;
+  padding-left: 14px;
+  border-left: 2px solid #facc15;
+  color: #8f8f8f;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.card {
+  background: #fff;
+  color: #111;
+  border-radius: 22px;
+  padding: 35px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+.cardTop span {
+  color: #a18000;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+.cardTop h2 {
+  font-size: 30px;
+  margin: 8px 0 4px;
+  letter-spacing: -1px;
+}
+
+.cardTop p {
+  color: #6b7280;
+  margin: 0 0 25px;
+  font-size: 14px;
+}
+
+.form {
+  display: grid;
+  gap: 17px;
+}
+
+.form label {
+  display: grid;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.form input,
+.form select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #dcdfe4;
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 14px 14px;
+  font-size: 15px;
+  color: #111;
+  outline: none;
+}
+
+.form input:focus,
+.form select:focus {
+  border-color: #d2ac00;
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.13);
+}
+
+.button {
+  margin-top: 4px;
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 16px;
+  background: #facc15;
+  color: #111;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.button:hover {
+  background: #f5c400;
+  transform: translateY(-1px);
+}
+
+.privacy {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 11px;
+  margin: 15px 0 0;
+}
+
+.error {
+  background: #fff1f2;
+  color: #9f1239;
+  border: 1px solid #fecdd3;
+  padding: 11px 13px;
+  border-radius: 8px;
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+.success {
+  text-align: center;
+  padding: 25px 5px;
+}
+
+.successIcon {
+  margin: 0 auto 18px;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #facc15;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.success h2 {
+  font-size: 29px;
+  margin: 0 0 12px;
+}
+
+.success p {
+  color: #6b7280;
+  line-height: 1.7;
+}
+
+.secondaryButton {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 13px 18px;
+  border-radius: 9px;
+  background: #111;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.bottom {
+  max-width: 1132px;
+  margin: 0 auto 70px;
+  border-top: 1px solid #272727;
+  border-bottom: 1px solid #272727;
+  padding: 32px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.bottom > div:first-child {
+  max-width: 620px;
+}
+
+.bottom strong {
+  font-size: 16px;
+}
+
+.bottom p {
+  color: #8f8f8f;
+  line-height: 1.6;
+  margin: 8px 0 0;
+  font-size: 14px;
+}
+
+.official {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  text-align: right;
+}
+
+.official span {
+  color: #777;
+  font-size: 12px;
+}
+
+.official strong {
+  color: #facc15;
+}
+
+.footer {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px 35px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  color: #616161;
+  font-size: 12px;
+}
+
+.honeypot {
+  display: none !important;
+}
+
+@media (max-width: 850px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 45px;
+    padding-top: 45px;
+  }
+
+  .copy h1 {
+    letter-spacing: -2px;
+  }
+
+  .bottom {
+    margin: 0 24px 50px;
+    flex-direction: column;
+  }
+
+  .official {
+    text-align: left;
+  }
+}
+
+@media (max-width: 560px) {
+  .header {
+    padding: 23px 18px;
+  }
+
+  .customerLabel {
+    display: none;
+  }
+
+  .hero {
+    padding: 35px 18px 65px;
+  }
+
+  .copy h1 {
+    font-size: 43px;
+  }
+
+  .lead {
+    font-size: 16px;
+  }
+
+  .card {
+    padding: 25px 20px;
+    border-radius: 17px;
+  }
+
+  .bottom {
+    margin-left: 18px;
+    margin-right: 18px;
+  }
+
+  .footer {
+    padding: 0 18px 30px;
+    flex-direction: column;
+  }
+}

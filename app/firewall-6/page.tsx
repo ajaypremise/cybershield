@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Resend } from "resend";
 import styles from "./page.module.css";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Firewall 6.0 Customer Review | CyberShield Australia",
@@ -74,10 +75,10 @@ export default async function FirewallSixPage({ searchParams }: PageProps) {
       <div className={styles.glow} />
 
       <header className={styles.header}>
-        <a href="/" className={styles.logo}>
-          <span className={styles.shield}>◆</span>
-          CYBERSHIELD
-        </a>
+        <Link href="/" className={styles.logo}>
+  <span className={styles.shield}>◆</span>
+  CYBERSHIELD
+</Link>
 
         <span className={styles.customerLabel}>Customer Update</span>
       </header>
@@ -128,9 +129,9 @@ export default async function FirewallSixPage({ searchParams }: PageProps) {
                 Thank you. A CyberShield representative will contact you to
                 review your current setup and Firewall 6.0 suitability.
               </p>
-              <a href="/" className={styles.secondaryButton}>
-                Return to CyberShield
-              </a>
+              <Link href="/" className={styles.secondaryButton}>
+  Return to CyberShield
+</Link>
             </div>
           ) : (
             <>

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Resend } from "resend";
 import styles from "./page.module.css";
 import Link from "next/link";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Firewall 6.0 Customer Review | CyberShield Australia",
@@ -76,8 +77,7 @@ export default async function FirewallSixPage({ searchParams }: PageProps) {
 
       <header className={styles.header}>
         <Link href="/" className={styles.logo}>
-  <span className={styles.shield}>◆</span>
-  CYBERSHIELD
+  <Image src="/cybershield-logo.png" alt="CyberShield" width={205} height={54} style={{objectFit:"contain",maxWidth:"100%",height:"auto"}} priority />
 </Link>
 
         <span className={styles.customerLabel}>Customer Update</span>

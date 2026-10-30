@@ -5,10 +5,10 @@ import { Resend } from "resend";
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/env";
 import { validateAdminCsrf, validateAgentCsrf } from "@/lib/auth";
-import { createPortalToken, verifyPortalToken } from "@/lib/portal-token";
+import { verifyPortalToken } from "@/lib/portal-token";
 import { enforceRateLimit } from "@/lib/rate-limit";
 import { requestContext } from "@/lib/request";
-import { SERVICES, formatMoney } from "@/lib/services";
+import { formatMoney } from "@/lib/services";
 import { CustomerCommunicationEmail, customerCommunicationText, customerCommunicationSubject, type CommunicationDetails } from "@/lib/customer-communications";
 import type { ServiceType } from "@prisma/client";
 

@@ -1,1 +1,1 @@
-ALTER TABLE "customers" ADD COLUMN "secondary_emails" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];
+ALTER TABLE "customers" ADD COLUMN IF NOT EXISTS "secondary_emails" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];

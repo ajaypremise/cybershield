@@ -19,4 +19,12 @@ export async function getFirewallTemplate():Promise<Template>{
  if(typeof meta?.subject==="string"&&typeof meta.html==="string"&&validateFirewallHtml(meta.html))return {subject:meta.subject,html:meta.html,version:String(meta.version||event?.id)};
  return {subject:firewallSubject,html:DEFAULT_FIREWALL_HTML,version:"default"};
 }
-export function firewallPlainText(details:{customerName:string;customerId:string}){return firewallText(details);}
+export function firewallPlainText(details:{customerName:string;customerId:string},html?:string){
+ if(!html)return firewallText(details);
+ return renderFirewallHtml(html,details)
+  .replace(/<\s*br\s*\/?>/gi,"\n")
+  .replace(/<\/\s*(p|div|h[1-6]|li)\s*>/gi,"\n")
+  .replace(/<[^>]*>/g," ")
+  .replace(/&nbsp;/gi," ").replace(/&amp;/gi,"&").replace(/&lt;/gi,"<").replace(/&gt;/gi,">").replace(/&quot;/gi,'"').replace(/&#39;/gi,"'")
+  .replace(/[ \t]+/g," ").replace(/\n\s*\n\s*\n/g,"\n\n").trim();
+}

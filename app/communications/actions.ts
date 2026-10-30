@@ -13,7 +13,7 @@ import { CustomerCommunicationEmail, customerCommunicationText, customerCommunic
 import type { ServiceType } from "@prisma/client";
 
 const route=(role:string,customerId?:string)=>role==="admin"&&customerId?`/admin/customers/${customerId}`:role==="admin"?"/admin/communications":"/portal";
-function fail(role:string,message:string):never {redirect(`${route(role)}?error=${encodeURIComponent(message)}`);}
+function fail(role:string,message:string,customerId?:string):never {redirect(`${route(role,customerId)}?error=${encodeURIComponent(message)}`);}
 export async function sendCustomerCommunication(form:FormData) {
  const role=String(form.get("role")||"");
  if(role!=="admin"&&role!=="agent") throw new Error("Invalid role");
@@ -36,6 +36,7 @@ export async function sendCustomerCommunication(form:FormData) {
  if(!Number.isInteger(years)||years<1||years>50||!Number.isFinite(amount)||amount<=0||amount>10000000||message.length>2000) fail(role,"Check years, amount and message length.");
  const currency=String(form.get("currency")||"AUD");
  if(!["AUD","USD","GBP"].includes(currency)) fail(role,"Invalid currency.");
+ if(!/^\d{1,8}(?:\.\d{1,2})?$/.test(String(form.get("amount")||""))) fail(role,"Amount must have no more than two decimal places.");
  const idempotencyKey=String(form.get("idempotencyKey")||"");
  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(idempotencyKey)) fail(role,"Invalid request.");
  const request=await requestContext();
@@ -56,6 +57,7 @@ export async function sendCustomerCommunication(form:FormData) {
    const png=filename.toLowerCase().endsWith(".png")&&bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]));
    const jpg=/\.jpe?g$/i.test(filename)&&bytes[0]===255&&bytes[1]===216&&bytes[2]===255;
    if(!pdf&&!png&&!jpg) fail(role,"Only valid PDF, PNG or JPEG attachments are allowed.");
+   if(!filename||filename.startsWith(".")) fail(role,"Invalid attachment name.");
    attachments=[{filename,content:bytes}];
  }
  const reserved=await prisma.$transaction(async tx=>{

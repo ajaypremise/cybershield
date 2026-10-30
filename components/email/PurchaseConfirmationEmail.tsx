@@ -1,7 +1,64 @@
-import { Heading, Section, Text } from "@react-email/components";
+import { Heading, Hr, Section, Text } from "@react-email/components";
 import { EmailShell } from "@/components/email/EmailShell";
-export type PurchaseEmailProps = { customerName: string; customerId: string; confirmationNumber: string; serviceName: string; serviceAreas: readonly string[]; amount: string; address: string; saleDate: string; coverageStart: string; coverageEnd?: string; coverageDuration: string };
-export function PurchaseConfirmationEmail(p: PurchaseEmailProps) { return <EmailShell preview={`${p.serviceName} confirmation — ${p.customerId}`}><Heading style={{ margin: "0 0 14px", color: "#0b1c35", fontSize: 27 }}>Your {p.serviceName} confirmation</Heading><Text style={copy}>Dear {p.customerName},</Text><Text style={copy}>Welcome to CyberShield. This email confirms your purchase of the CyberShield {p.serviceName} service. Your confirmation document is attached.</Text><Section style={{ border: "1px solid #ddd", borderLeft: "5px solid #39c9f6", padding: "16px 18px", margin: "22px 0" }}><Text style={row}><b>Customer ID:</b> {p.customerId}</Text><Text style={row}><b>Confirmation:</b> {p.confirmationNumber}</Text><Text style={row}><b>Service:</b> {p.serviceName}</Text><Text style={row}><b>Amount:</b> {p.amount}</Text><Text style={row}><b>Covered address:</b> {p.address}</Text><Text style={row}><b>Sale date:</b> {p.saleDate}</Text><Text style={row}><b>Coverage:</b> {p.coverageDuration}</Text><Text style={row}><b>Starts:</b> {p.coverageStart}</Text>{p.coverageEnd && <Text style={row}><b>Ends:</b> {p.coverageEnd}</Text>}</Section><Heading as="h2" style={{ fontSize: 18 }}>Service areas</Heading>{p.serviceAreas.map((area) => <Text key={area} style={row}>• {area}</Text>)}<Heading as="h2" style={{ fontSize: 18 }}>Next step</Heading><Text style={copy}>You may receive a separate secure link to review and sign your CyberShield Service Agreement.</Text><Text style={small}>Service features depend on the purchased scope and signed agreement. No cybersecurity provider can guarantee prevention of every threat, attack, fraud attempt or security incident.</Text><Text style={copy}>CyberShield Support Team</Text></EmailShell>; }
-export function purchaseConfirmationText(p: PurchaseEmailProps) { return `Dear ${p.customerName},\n\nThis confirms your CyberShield ${p.serviceName} service.\nCustomer ID: ${p.customerId}\nConfirmation: ${p.confirmationNumber}\nAmount: ${p.amount}\nCovered address: ${p.address}\nSale date: ${p.saleDate}\nCoverage: ${p.coverageDuration}\nCoverage start: ${p.coverageStart}${p.coverageEnd ? `\nCoverage end: ${p.coverageEnd}` : ""}\n\nService areas:\n${p.serviceAreas.map((x) => `- ${x}`).join("\n")}\n\nThe complete scope and limitations are governed by the applicable signed agreement. No cybersecurity service can guarantee prevention of every incident.\n\nCyberShield Support Team`; }
-const copy = { color: "#3d4652", fontSize: 14, lineHeight: "23px" }; const row = { ...copy, margin: "4px 0" }; const small = { ...copy, fontSize: 12, color: "#626b78" };
+
+export type PurchaseEmailProps = {
+  customerName: string;
+  customerId: string; confirmationNumber: string; serviceName: string; serviceAreas: readonly string[]; address: string; saleDate: string; coverageStart: string; coverageEnd?: string; coverageDuration: string;
+  tenure?: string;
+  amount: string;
+  agentName?: string;
+  confirmationDate?: string;
+};
+
+const bullet = (text: string) => <Text style={{ margin: "5px 0", color: "#3d4652", fontSize: 14, lineHeight: "22px" }}>• {text}</Text>;
+
+export function PurchaseConfirmationEmail(props: PurchaseEmailProps) {
+  return (
+    <EmailShell preview={`CyberShield protection confirmed for ${props.customerId}`}>
+      <Heading style={{ margin: "0 0 18px", color: "#0b1c35", fontSize: 27 }}>Welcome to CyberShield</Heading>
+      <Text style={copy}>Dear {props.customerName},</Text>
+      <Text style={copy}>Welcome to CyberShield, and thank you for choosing us to help protect your business and connected devices.</Text>
+      <Text style={copy}>This email confirms your CyberShield {props.serviceName} security and support package.</Text>
+
+      <Section style={{ margin: "26px 0", border: "1px solid #e5e5e5", borderLeft: "5px solid #39c9f6", backgroundColor: "#fafafa", padding: "20px" }}>
+        <Text style={label}>CUSTOMER ID</Text>
+        <Text style={{ margin: "4px 0 16px", color: "#111", fontSize: 25, fontWeight: 700 }}>{props.customerId}</Text>
+        <Text style={detail}><strong>Protection tenure:</strong> {props.coverageDuration}</Text>
+        <Text style={detail}><strong>Amount paid:</strong> {props.amount}</Text>
+        <Text style={detail}><strong>Assisted by:</strong> {props.agentName||"CyberShield Support Team"}</Text>
+        <Text style={detail}><strong>Confirmation date:</strong> {props.saleDate}</Text>
+      </Section>
+
+      <Heading as="h2" style={heading}>YOUR CYBERSHIELD PROTECTION</Heading>
+      <Text style={copy}>Your solution is designed around the security requirements of your premises, including the number and types of connected devices, users, network configuration and selected protection services.</Text>
+      <Text style={copy}>Depending on your agreed solution, protection may cover devices such as:</Text>
+      {bullet("Desktop computers and laptops")}{bullet("Servers and network storage")}{bullet("Printers and other connected equipment")}{bullet("Smart televisions and compatible connected devices")}{bullet("Mobile devices connected through the protected network")}
+
+      <Heading as="h2" style={heading}>HOW YOUR PROTECTION WORKS</Heading>
+      <Text style={copy}>CyberShield protection operates primarily at the network and security-infrastructure level. This means you may not see a separate application, popup or dashboard on every protected device.</Text>
+      <Text style={copy}>Your security controls operate continuously in the background, helping inspect network activity and prevent suspicious or malicious connections before they reach devices within the protected environment.</Text>
+
+      <Heading as="h2" style={heading}>SERVICES INCLUDED</Heading>
+      <Text style={copy}>Your package may include, according to your selected configuration:</Text>
+      {bullet("Managed firewall and network security")}{bullet("Malicious IP and reputation-based blocking")}{bullet("Intrusion and suspicious-activity prevention")}{bullet("Security software updates and installation assistance")}{bullet("Device and computer optimisation assistance")}{bullet("Identity-protection support")}{bullet("Security guidance and technical support")}
+      <Text style={copy}>Because every CyberShield solution is tailored, the precise coverage will be determined by the services included in your confirmed plan.</Text>
+
+      <Hr style={{ borderColor: "#e5e5e5", margin: "28px 0" }} />
+      <Heading as="h2" style={heading}>NEED ASSISTANCE?</Heading>
+      <Text style={detail}>Support: 1800 997 002 or (03) 7046 5922<br />Billing: (04) 6825 8207<br />Email: info@cybershieldau.com.au<br />Support hours: 10:00 AM–9:00 PM AEST</Text>
+      <Text style={copy}>Our contact-information document is attached for your records.</Text>
+      <Text style={copy}>Thank you for choosing CyberShield.</Text>
+      <Text style={copy}>Kind regards,<br /><strong>{props.agentName}</strong><br />CyberShield Support Team</Text>
+    </EmailShell>
+  );
+}
+
+const copy = { color: "#3d4652", fontSize: 14, lineHeight: "23px", margin: "12px 0" };
+const heading = { color: "#111", fontSize: 15, letterSpacing: "0.06em", margin: "28px 0 10px" };
+const label = { margin: 0, color: "#2461b4", fontSize: 11, fontWeight: 700, letterSpacing: "0.14em" };
+const detail = { margin: "5px 0", color: "#303844", fontSize: 14, lineHeight: "22px" };
+
+export function purchaseConfirmationText(props: PurchaseEmailProps): string {
+  return `Dear ${props.customerName},\n\nWelcome to CyberShield, and thank you for choosing us to help protect your business and connected devices.\n\nThis email confirms your CyberShield security and support package.\n\nCUSTOMER DETAILS\nCustomer ID: ${props.customerId}\nProtection tenure: ${props.tenure}\nAmount paid: ${props.amount}\nAssisted by: ${props.agentName}\nConfirmation date: ${props.confirmationDate}\n\nYOUR CYBERSHIELD PROTECTION\nYour solution is designed around the security requirements of your premises, including the number and types of connected devices, users, network configuration and selected protection services.\n\nHOW YOUR PROTECTION WORKS\nCyberShield protection operates primarily at the network and security-infrastructure level. This means you may not see a separate application, popup or dashboard on every protected device.\n\nSERVICES INCLUDED\nYour package may include managed firewall and network security, malicious-IP blocking, intrusion prevention, software-update assistance, optimisation assistance, identity-protection support, and security guidance according to your selected configuration.\n\nNEED ASSISTANCE?\nSupport: 1800 997 002 or (03) 7046 5922\nBilling: (04) 6825 8207\nEmail: info@cybershieldau.com.au\nSupport hours: 10:00 AM–9:00 PM AEST\n\nKind regards,\n${props.agentName}\nCyberShield Support Team\n121 Collins Street\nMelbourne VIC 3000\nwww.cybershieldau.com.au`;
+}
 

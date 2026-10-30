@@ -7,7 +7,7 @@ export function validateFirewallHtml(html:string):boolean {
  if(!html.trim()||html.length>25000)return false;
  if(/<\s*\/?\s*(script|iframe|object|embed|form|input|button|meta|base|svg|math|style|link)\b/i.test(html))return false;
  if(/\bon[a-z]+\s*=/i.test(html)||/javascript\s*:|data\s*:|vbscript\s*:/i.test(html))return false;
- if(/<\s*img\b/i.test(html)&&!/<img\s+src="https:\/\/www\.cybershieldau\.com\.au\/cybershield-logo\.png"/i.test(html))return false;
+ if(/<\s*img\b/i.test(html)){const images=html.match(/<img\b[^>]*>/gi)||[];if(images.some(tag=>!/^<img\s+src="https:\/\/www\.cybershieldau\.com\.au\/cybershield-logo\.png"\s+alt="CyberShield"\s+width="190"\s+style="display:block;max-width:100%"\s*>$/i.test(tag)))return false;}
  return true;
 }
 export function escapeHtml(value:string):string{return value.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}

@@ -35,6 +35,7 @@ export function CustomerEmailComposer(p:Props){
  <div style={{background:"#0b1c35",color:"#39c9f6",padding:18,fontWeight:700}}>CYBERSHIELD AUSTRALIA</div>
  <h3>{serviceName}</h3><p>Dear {p.customerName},</p><p>Thank you for contacting CyberShield. Please review the following service information.</p>{p.introductions?.[service]&&<p style={{whiteSpace:"pre-wrap"}}>{p.introductions[service]}</p>}
  <p><strong>Customer ID:</strong> {p.customerPublicId}</p><p><strong>Service:</strong> {serviceName}</p>
+ <p>{service==="NETWORK_SECURITY"?"Device and home/business network support, security guidance, software update assistance, optimisation support and cybersecurity assistance.":"Identity, privacy and IP protection support, identity-risk assistance, breach and fraud guidance, privacy support and related device/network security assistance."}</p>
  <p><strong>Proposed amount:</strong> {currency} {amount||"—"}</p><p><strong>Proposed coverage:</strong> {years||"—"} years</p>
  {message&&<p style={{whiteSpace:"pre-wrap"}}>{message}</p>}
  <p style={{fontSize:12}}>Service information only. This does not change existing purchases, coverage or agreements.</p>

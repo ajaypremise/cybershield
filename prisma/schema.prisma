@@ -62,6 +62,7 @@ model Customer {
   phone               String?
   normalizedPhone     String?            @unique @map("normalized_phone")
   alternatePhone      String?            @map("alternate_phone")
+  secondaryEmails     String[]           @default([]) @map("secondary_emails")
   address             String
   createdByAgentName  String             @map("created_by_agent_name")
   lastActionAgentName String             @map("last_action_agent_name")

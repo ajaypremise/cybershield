@@ -15,8 +15,8 @@ export function CustomerEmailComposer(p:Props){
  useEffect(()=>setRequestId(crypto.randomUUID()),[]);
  const serviceName=service==="NETWORK_SECURITY"?"Network Security":"Identity & IP Protector";
  return <section className="internal-card" style={{padding:"1.5rem",marginTop:"1.25rem"}}>
- <h2>Send service information</h2>
- <p>This sends a new informational email, not a purchase confirmation or agreement. No existing purchase, customer ID or coverage record is changed.</p>
+ <h2>{p.role==="agent"?"Send a service offer":"Send a branded service offer"}</h2>
+ <p>This is a new service offer, not a resend or a recorded sale. To resend a purchase confirmation, use the purchase history actions instead.</p>
  <form action={sendCustomerCommunication} className="internal-form" onSubmit={e=>{if(!confirm||busy){e.preventDefault();return;}setBusy(true);}}>
  <input type="hidden" name="confirmSend" value={confirm?"yes":"no"}/><input type="hidden" name="role" value={p.role}/><input type="hidden" name="csrfToken" value={p.csrfToken}/>
  <input type="hidden" name="customerId" value={p.customerId}/><input type="hidden" name="recordToken" value={p.recordToken||""}/>
@@ -28,8 +28,8 @@ export function CustomerEmailComposer(p:Props){
  <label>Proposed amount<input name="amount" type="number" min="0.01" step="0.01" required value={amount} onChange={e=>setAmount(e.target.value)}/></label>
  </div>
  <label>Currency<select name="currency" value={currency} onChange={e=>setCurrency(e.target.value)}><option>AUD</option><option>USD</option><option>GBP</option></select></label>
- <label>Optional additional message<textarea name="message" rows={4} maxLength={2000} value={message} onChange={e=>setMessage(e.target.value)} placeholder="Add context for this customer; approved service wording remains unchanged."/></label>
- <label>Optional attachment (PDF, PNG or JPEG, maximum 5 MB)<input type="file" name="attachment" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"/></label>
+ {p.role==="admin"&&<label>Optional custom message<textarea name="message" rows={4} maxLength={2000} value={message} onChange={e=>setMessage(e.target.value)} placeholder="Add context for this customer; approved service wording remains unchanged."/></label>}
+ {p.role==="admin"&&<label>Optional attachment (PDF, PNG or JPEG, maximum 5 MB)<input type="file" name="attachment" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"/></label>}
  <button type="button" className="internal-secondary" onClick={()=>setPreview(v=>!v)}>{preview?"Hide preview":"Preview email"}</button>
  {preview&&<div style={{border:"1px solid #cbd5e1",borderRadius:12,padding:22,background:"#fff",color:"#0b1c35"}}>
  <div style={{background:"#0b1c35",color:"#39c9f6",padding:18,fontWeight:700}}>CYBERSHIELD AUSTRALIA</div>
@@ -40,7 +40,7 @@ export function CustomerEmailComposer(p:Props){
  {message&&<p style={{whiteSpace:"pre-wrap"}}>{message}</p>}
  <p style={{fontSize:12}}>Service information only. This does not change existing purchases, coverage or agreements.</p>
  </div>}
- <label style={{display:"flex",gap:10,alignItems:"flex-start"}}><input type="checkbox" checked={confirm} onChange={e=>setConfirm(e.target.checked)}/><span>I have verified the customer, service, amount, coverage and attachment. I understand this sends a real email to {p.customerEmail}.</span></label>
+ <label style={{display:"flex",gap:10,alignItems:"flex-start"}}><input type="checkbox" checked={confirm} onChange={e=>setConfirm(e.target.checked)}/><span>I have verified the customer, service, amount and coverage. I understand this sends a real email to {p.customerEmail}.</span></label>
  <button className="internal-primary" type="submit" disabled={!confirm||busy||!requestId}>{busy?"Sending…":"Send email to customer"}</button>
  </form></section>;
 }

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { sendCustomerCommunication } from "@/app/communications/actions";
-type Props={role:"admin"|"agent";csrfToken:string;customerId:string;customerPublicId:string;customerName:string;customerEmail:string;recordToken?:string};
+type Props={role:"admin"|"agent";csrfToken:string;customerId:string;customerPublicId:string;customerName:string;customerEmail:string;recordToken?:string;introductions?:Record<string,string>};
 export function CustomerEmailComposer(p:Props){
  const [service,setService]=useState("NETWORK_SECURITY");
  const [years,setYears]=useState("1");
@@ -33,7 +33,7 @@ export function CustomerEmailComposer(p:Props){
  <button type="button" className="internal-secondary" onClick={()=>setPreview(v=>!v)}>{preview?"Hide preview":"Preview email"}</button>
  {preview&&<div style={{border:"1px solid #cbd5e1",borderRadius:12,padding:22,background:"#fff",color:"#0b1c35"}}>
  <div style={{background:"#0b1c35",color:"#39c9f6",padding:18,fontWeight:700}}>CYBERSHIELD AUSTRALIA</div>
- <h3>{serviceName}</h3><p>Dear {p.customerName},</p><p>Thank you for contacting CyberShield. Please review the following service information.</p>
+ <h3>{serviceName}</h3><p>Dear {p.customerName},</p><p>Thank you for contacting CyberShield. Please review the following service information.</p>{p.introductions?.[service]&&<p style={{whiteSpace:"pre-wrap"}}>{p.introductions[service]}</p>}
  <p><strong>Customer ID:</strong> {p.customerPublicId}</p><p><strong>Service:</strong> {serviceName}</p>
  <p><strong>Proposed amount:</strong> {currency} {amount||"—"}</p><p><strong>Proposed coverage:</strong> {years||"—"} years</p>
  {message&&<p style={{whiteSpace:"pre-wrap"}}>{message}</p>}

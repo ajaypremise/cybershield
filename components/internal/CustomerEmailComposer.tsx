@@ -12,7 +12,7 @@ export function CustomerEmailComposer(p:Props){
  useEffect(()=>setRequestId(crypto.randomUUID()),[]);
  const toggle=(e:string)=>setSelected(s=>s.includes(e)?s.filter(x=>x!==e):[...s,e]);
  const changeExtra=(next:string)=>{const prior=extra;const email=next.trim().toLowerCase();setExtra(email);setSelected(current=>current.filter(x=>x!==prior));setConfirmed(false);};
- const invalidExtra=Boolean(extra&&!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(extra));
+ const invalidExtra=Boolean(extra&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(extra));
  return <section className="internal-card" style={{padding:"1.5rem",marginTop:"1.25rem"}}>
  <h2>Create upgrade email — Firewall 6.0</h2><p>Select one or more email recipients. The subject and HTML message are managed by administrators.</p>
  <form action={sendCustomerCommunication} className="internal-form" onSubmit={e=>{if(!confirmed||busy||selected.length===0||invalidExtra||!requestId){e.preventDefault();return;}setBusy(true);}}>

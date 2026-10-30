@@ -12,11 +12,12 @@ import { formatMoney } from "@/lib/services";
 import { CustomerCommunicationEmail, customerCommunicationText, customerCommunicationSubject, type CommunicationDetails } from "@/lib/customer-communications";
 import type { ServiceType } from "@prisma/client";
 
-const route=(role:string)=>role==="admin"?"/admin/communications":"/portal";
+const route=(role:string,customerId?:string)=>role==="admin"&&customerId?`/admin/customers/${customerId}`:role==="admin"?"/admin/communications":"/portal";
 function fail(role:string,message:string):never {redirect(`${route(role)}?error=${encodeURIComponent(message)}`);}
 export async function sendCustomerCommunication(form:FormData) {
  const role=String(form.get("role")||"");
  if(role!=="admin"&&role!=="agent") throw new Error("Invalid role");
+ if(form.get("confirmSend")!=="yes") fail(role,"Confirm the recipient and details before sending.");
  const csrf=String(form.get("csrfToken")||"");
  const session=role==="admin"?await validateAdminCsrf(csrf):await validateAgentCsrf(csrf);
  const customerId=String(form.get("customerId")||"");
@@ -36,7 +37,7 @@ export async function sendCustomerCommunication(form:FormData) {
  const currency=String(form.get("currency")||"AUD");
  if(!["AUD","USD","GBP"].includes(currency)) fail(role,"Invalid currency.");
  const idempotencyKey=String(form.get("idempotencyKey")||"");
- if(!/^[0-9a-f-]{36}$/i.test(idempotencyKey)) fail(role,"Invalid request.");
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(idempotencyKey)) fail(role,"Invalid request.");
  const request=await requestContext();
  await enforceRateLimit("customer-communication",`${role}:${session.id}:${request.ip}`,10,3600);
  // Reserve the unique request before contacting the provider. Never retry the same request automatically.
@@ -77,5 +78,5 @@ export async function sendCustomerCommunication(form:FormData) {
  } catch {
    fail(role,"Provider accepted the email, but history could not be updated. Do not resend until checked.");
  }
- redirect(`${route(role)}?success=${encodeURIComponent("Email accepted by provider for "+customer.customerId+". Delivery is not yet confirmed.")}`);
+ redirect(`${route(role,customer.id)}?success=${encodeURIComponent("Email accepted by provider for "+customer.customerId+". Delivery is not yet confirmed.")}`);
 }

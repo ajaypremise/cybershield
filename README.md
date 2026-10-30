@@ -9,4 +9,3 @@ Next.js website with a customer-safe confirmation and digital-agreement workflow
 The Vercel build command is unchanged. Database migrations are never run automatically during a build. Use the manually dispatched **Run Prisma Migration** GitHub Actions workflow after reviewing a migration.
 
 Local checks: `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build`.
-

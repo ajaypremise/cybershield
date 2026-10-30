@@ -1,5 +1,30 @@
 import { Document, Page, StyleSheet, Text, View, Image } from "@react-pdf/renderer";
+
+const styles = StyleSheet.create({
+  page: { padding: 54, backgroundColor: "#ffffff", fontFamily: "Helvetica", color: "#151515" },
+  band: { height: 10, backgroundColor: "#39c9f6", margin: -54, marginBottom: 52 },
+  brand: { fontSize: 31, fontWeight: 700, color: "#0b1c35", letterSpacing: 0.5 },
+  subtitle: { marginTop: 7, fontSize: 11, color: "#626262", letterSpacing: 1.2 },
+  card: { marginTop: 42, border: "1 solid #dedede", borderLeft: "6 solid #f5c400", padding: 26 },
+  row: { marginBottom: 17 }, label: { fontSize: 9, color: "#2461b4", letterSpacing: 1.2 }, value: { marginTop: 4, fontSize: 15 },
+  footer: { position: "absolute", bottom: 42, left: 54, right: 54, borderTop: "1 solid #dedede", paddingTop: 12, fontSize: 9, color: "#707070" },
+});
+
 export type ConfirmationPdfProps = { confirmationNumber: string; customerName: string; customerId: string; address: string; serviceName: string; amount: string; saleDate: string; coverageStart: string; coverageDuration: string; coverageEnd?: string; issueTimestamp: string; serviceSummary: string; logoDataUrl?: string };
-export function confirmationPdfText(p: ConfirmationPdfProps) { return ["CYBERSHIELD SERVICE CONFIRMATION", `Document: ${p.confirmationNumber}`, `Customer ID: ${p.customerId}`, `Customer: ${p.customerName}`, `Covered address: ${p.address}`, `Service: ${p.serviceName}`, `Amount: ${p.amount}`, `Sale date: ${p.saleDate}`, `Coverage start: ${p.coverageStart}`, `Coverage duration: ${p.coverageDuration}`, ...(p.coverageEnd ? [`Coverage end: ${p.coverageEnd}`] : []), `Issued: ${p.issueTimestamp}`, p.serviceSummary].join("\n"); }
-const s = StyleSheet.create({ page: { padding: 48, fontFamily: "Helvetica", color: "#242424", fontSize: 10, lineHeight: 1.55 }, header: { backgroundColor: "#0b1c35", borderTop: "6 solid #39c9f6", padding: 20, marginBottom: 24 }, brand: { color: "#39c9f6", fontSize: 24, fontWeight: 700 }, title: { fontSize: 20, fontWeight: 700, marginBottom: 4 }, ref: { color: "#666", fontSize: 8 }, grid: { border: "1 solid #ddd", marginVertical: 20 }, row: { flexDirection: "row", borderBottom: "1 solid #eee", padding: 9 }, key: { width: "34%", color: "#666" }, value: { width: "66%", fontWeight: 700 }, section: { fontSize: 13, fontWeight: 700, marginTop: 16, marginBottom: 7 }, footer: { position: "absolute", bottom: 22, left: 48, right: 48, borderTop: "1 solid #ddd", paddingTop: 8, fontSize: 7, color: "#777", textAlign: "center" } });
-export function ContactInformationPdf(p: ConfirmationPdfProps) { const rows = [["Customer ID",p.customerId],["Customer",p.customerName],["Covered address",p.address],["Selected service",p.serviceName],["Amount",p.amount],["Sale date",p.saleDate],["Coverage start",p.coverageStart],["Coverage duration",p.coverageDuration],...(p.coverageEnd ? [["Coverage end",p.coverageEnd]] : []),["Issue timestamp",p.issueTimestamp]]; return <Document title={`${p.serviceName} confirmation ${p.confirmationNumber}`} author="CyberShield Australia"><Page size="A4" style={s.page}><View style={s.header}>{p.logoDataUrl ? <Image src={p.logoDataUrl} style={{width:170,height:46,objectFit:"contain"}} /> : <Text style={s.brand}>CYBERSHIELD</Text>}</View><Text style={s.title}>{p.serviceName} Service Confirmation</Text><Text style={s.ref}>Document reference: {p.confirmationNumber}</Text><View style={s.grid}>{rows.map(([k,v]) => <View style={s.row} key={k}><Text style={s.key}>{k}</Text><Text style={s.value}>{v}</Text></View>)}</View><Text style={s.section}>Service summary</Text><Text>{p.serviceSummary}</Text><Text style={s.section}>Important record</Text><Text>This confirmation records the service selected at the time of purchase. The complete scope, limitations and conditions are governed by the applicable signed CyberShield Service Agreement.</Text><Text style={s.footer}>CyberShield Australia · 121 Collins St, Melbourne VIC 3000 · 1800 997 002 · info@cybershieldau.com.au · Page 1 of 1</Text></Page></Document>; }
+export function confirmationPdfText(p: ConfirmationPdfProps) { return `CyberShield Australia contact information for ${p.customerId}: 1800 997 002, info@cybershieldau.com.au`; }
+export function ContactInformationPdf(p: ConfirmationPdfProps) {
+  const rows = [
+    ["TOLL FREE SUPPORT", "1800 997 002"], ["SUPPORT", "(03) 7046 5922"], ["BILLING", "(04) 6825 8207"],
+    ["EMAIL", "info@cybershieldau.com.au"], ["WEBSITE", "cybershieldau.com.au"], ["SUPPORT HOURS", "10 AM to 9 PM AEST"],
+    ["ADDRESS", "121 Collins St, Melbourne VIC 3000"],
+  ];
+  return <Document title="CyberShield Contact Information" author="CyberShield Australia">
+    <Page size="A4" style={styles.page}>
+      <View style={styles.band} />
+      {p.logoDataUrl ? <Image src={p.logoDataUrl} style={{width:190,height:55,objectFit:"contain"}} /> : <Text style={styles.brand}>CyberShield</Text>}<Text style={styles.subtitle}>AUSTRALIA · CONTACT INFORMATION</Text>
+      <View style={styles.card}>{rows.map(([label, value]) => <View key={label} style={styles.row}><Text style={styles.label}>{label}</Text><Text style={styles.value}>{value}</Text></View>)}</View>
+      <Text style={styles.footer}>Keep this document with your CyberShield service records. Support hours are stated in Australian Eastern Standard Time.</Text>
+    </Page>
+  </Document>;
+}
+

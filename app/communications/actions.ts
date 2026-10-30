@@ -59,6 +59,7 @@ export async function sendCustomerCommunication(form:FormData) {
    attachments=[{filename,content:bytes}];
  }
  await prisma.adminAuditEvent.create({data:{action:"CUSTOMER_EMAIL_REQUEST",targetId:customer.id,actorRole:role.toUpperCase(),actorName:role==="admin"?"Administrator":"Agent",ipAddress:request.ip,metadata:{requestId:idempotencyKey,customerId:customer.customerId,service,years,amount,currency,attachment:attachments[0]?.filename||null,status:"ATTEMPTED",intro,message}}});
+ let providerId:string;
  try {
    const {data,error}=await new Resend(env("RESEND_API_KEY")).emails.send({
      from:env("RESEND_FROM_EMAIL"),to:customer.email,subject:customerCommunicationSubject(details),
@@ -66,12 +67,15 @@ export async function sendCustomerCommunication(form:FormData) {
      ...(attachments.length?{attachments}:{})
    });
    if(error||!data?.id) throw new Error("Email provider rejected the request.");
-   await prisma.adminAuditEvent.create({data:{action:"CUSTOMER_EMAIL_ACCEPTED",targetId:customer.id,actorRole:role.toUpperCase(),metadata:{requestId:idempotencyKey,providerId:data.id,service,attachment:attachments[0]?.filename||null}}});
-   redirect(`${route(role)}?success=${encodeURIComponent("Email accepted by provider for "+customer.customerId+". Delivery is not yet confirmed.")}`);
- } catch(error) {
-   // Next.js redirects throw: do not mistake a successful redirect for delivery failure.
-   if(error&&typeof error==="object"&&"digest" in error&&String((error as {digest?:string}).digest).startsWith("NEXT_REDIRECT")) throw error;
+   providerId=data.id;
+ } catch {
    await prisma.adminAuditEvent.create({data:{action:"CUSTOMER_EMAIL_FAILED",targetId:customer.id,actorRole:role.toUpperCase(),metadata:{requestId:idempotencyKey,service}}});
    fail(role,"Email could not be sent. Check communication history before retrying.");
  }
+ try {
+   await prisma.adminAuditEvent.create({data:{action:"CUSTOMER_EMAIL_ACCEPTED",targetId:customer.id,actorRole:role.toUpperCase(),metadata:{requestId:idempotencyKey,providerId,service,attachment:attachments[0]?.filename||null}}});
+ } catch {
+   fail(role,"Provider accepted the email, but history could not be updated. Do not resend until checked.");
+ }
+ redirect(`${route(role)}?success=${encodeURIComponent("Email accepted by provider for "+customer.customerId+". Delivery is not yet confirmed.")}`);
 }

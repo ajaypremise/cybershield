@@ -3,14 +3,14 @@ import { EmailShell } from "@/components/email/EmailShell";
 import { SERVICES } from "@/lib/services";
 import type { ServiceType } from "@prisma/client";
 
-export type CommunicationDetails = {customerName:string; customerId:string; service:ServiceType; amount:string; years:number; message:string};
+export type CommunicationDetails = {customerName:string; customerId:string; service:ServiceType; amount:string; years:number; message:string;intro?:string};
 export function customerCommunicationSubject(d:CommunicationDetails) { return `CyberShield ${SERVICES[d.service].name} — Service Information (${d.customerId})`; }
 export function CustomerCommunicationEmail({details:d}:{details:CommunicationDetails}) {
  const service=SERVICES[d.service];
  return <EmailShell preview={customerCommunicationSubject(d)}>
    <Heading style={{color:"#0b1c35",fontSize:25,margin:"0 0 18px"}}>{service.name}</Heading>
    <Text>Dear {d.customerName},</Text>
-   <Text>Thank you for contacting CyberShield. Please review the following service information.</Text>
+   <Text>Thank you for contacting CyberShield. Please review the following service information.</Text>{d.intro && <Text style={{whiteSpace:"pre-wrap"}}>{d.intro}</Text>}
    <Section style={{border:"1px solid #dce5f1",borderLeft:"5px solid #39c9f6",padding:18}}>
      <Text><strong>Customer ID:</strong> {d.customerId}</Text>
      <Text><strong>Service:</strong> {service.name}</Text>

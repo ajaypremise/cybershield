@@ -1,5 +1,4 @@
 "use server";
-import {createElement} from "react";
 import {redirect} from "next/navigation";
 import {Resend} from "resend";
 import {prisma} from "@/lib/db";
@@ -8,7 +7,7 @@ import {validateAdminCsrf,validateAgentCsrf} from "@/lib/auth";
 import {verifyPortalToken} from "@/lib/portal-token";
 import {enforceRateLimit} from "@/lib/rate-limit";
 import {requestContext} from "@/lib/request";
-import {FirewallUpgradeEmail,firewallText,firewallSubject} from "@/lib/customer-communications";
+import {firewallPlainText,getFirewallTemplate,renderFirewallHtml} from "@/lib/firewall-template-settings";
 const route=(role:string,id?:string)=>role==="admin"&&id?`/admin/customers/${id}`:role==="admin"?"/admin/communications":"/portal";
 function fail(role:string,message:string,id?:string):never{redirect(`${route(role,id)}?error=${encodeURIComponent(message)}`);}
 const emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -43,9 +42,10 @@ export async function sendCustomerCommunication(form:FormData){
  });
  if(!reserved)fail(role,"This email request was already submitted. Check history before trying again.",id);
  const details={customerName:customer.name,customerId:customer.customerId};
+ const template=await getFirewallTemplate();
  const accepted:string[]=[];const rejected:string[]=[];
  for(const recipient of selected){
- try{const {data,error}=await new Resend(env("RESEND_API_KEY")).emails.send({from:env("RESEND_FROM_EMAIL"),to:recipient,subject:firewallSubject,react:createElement(FirewallUpgradeEmail,{details}),text:firewallText(details)});
+ try{const {data,error}=await new Resend(env("RESEND_API_KEY")).emails.send({from:env("RESEND_FROM_EMAIL"),to:recipient,subject:template.subject,html:renderFirewallHtml(template.html,details),text:firewallPlainText(details)});
  if(error||!data?.id)throw new Error("Provider rejected email");
  accepted.push(recipient);
  await prisma.adminAuditEvent.create({data:{action:"CUSTOMER_EMAIL_ACCEPTED",targetId:id,actorRole:role.toUpperCase(),metadata:{requestId,recipient,providerId:data.id,template:"FIREWALL_6"}}});

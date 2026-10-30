@@ -142,3 +142,11 @@ form label{display:block;color:#cbd5e1;font-size:.78rem;font-weight:600}form inp
 .crm-root .internal-card .service-choice strong{color:#203653}
 .crm-root .internal-card input[type="radio"],.crm-root .internal-card input[type="checkbox"]{width:auto;min-height:0;accent-color:#1768cf}
 .crm-root .internal-card .audit-list strong{color:#233a57}
+
+/* Balanced CRM work area */
+.crm-root .internal-shell{width:calc(100% - 64px);max-width:1500px;margin-inline:auto}
+.crm-root .crm-quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-width:980px}
+.crm-root .crm-quick-actions a{min-height:68px;justify-content:center;padding:18px;font-size:15px}
+.crm-root .internal-grid{grid-template-columns:minmax(0,1fr);align-items:start}
+.crm-root .internal-grid>div,.crm-root .internal-grid>section{min-width:0;width:100%}
+@media(max-width:850px){.crm-root .internal-shell{width:calc(100% - 32px)}.crm-root .crm-quick-actions{grid-template-columns:1fr}}

@@ -129,3 +129,16 @@ form label{display:block;color:#cbd5e1;font-size:.78rem;font-weight:600}form inp
 .crm-root .crm-section-heading h2{margin:0}
 @media(max-width:850px){.crm-root{grid-template-columns:1fr}.crm-sidebar{position:relative;height:auto;padding:12px 18px;gap:8px}.crm-brand{padding:0}.crm-brand img{width:132px}.crm-workspace,.crm-nav-caption,.crm-secure{display:none}.crm-side-links{display:flex;flex-wrap:wrap}.crm-side-links a{padding:9px 11px}.crm-sidebar-bottom{position:absolute;right:18px;top:11px;border:0;padding:0}.crm-sidebar-bottom button{margin:0}.crm-topbar{height:52px;padding:0 20px}.crm-root .internal-shell{width:calc(100% - 32px)}.crm-root .internal-content{padding-top:25px}.crm-root .internal-grid{grid-template-columns:1fr}}
 @media(max-width:520px){.crm-topbar-status{display:none}.crm-root .internal-form-grid{grid-template-columns:1fr}.crm-root .internal-card{border-radius:12px}.crm-root .summary-grid{grid-template-columns:1fr 1fr}}
+
+/* Ensure long CRM records and sensitive status components remain readable. */
+.crm-root .internal-card,.crm-root .internal-content{color:#263c57}
+.crm-root .internal-card a{color:#1768cf}
+.crm-root .internal-table td,.crm-root .internal-table th{vertical-align:top}
+.crm-root .internal-table td a{font-weight:750;text-decoration:none}
+.crm-root .internal-table tbody tr:hover{background:#f9fbfe}
+.crm-root .internal-card .status-chip{border:1px solid #d9e5f1;background:#eff5fc;color:#365f8c}
+.crm-root .internal-card .status-chip.signed,.crm-root .internal-card .status-chip.completed{background:#e9f8ef;color:#167047}
+.crm-root .internal-card .status-chip.failed{background:#fff0f0;color:#a83b3b}
+.crm-root .internal-card .service-choice strong{color:#203653}
+.crm-root .internal-card input[type="radio"],.crm-root .internal-card input[type="checkbox"]{width:auto;min-height:0;accent-color:#1768cf}
+.crm-root .internal-card .audit-list strong{color:#233a57}

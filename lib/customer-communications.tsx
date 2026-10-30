@@ -24,5 +24,5 @@ export function CustomerCommunicationEmail({details:d}:{details:CommunicationDet
  </EmailShell>;
 }
 export function customerCommunicationText(d:CommunicationDetails) {
- return `Dear ${d.customerName},\n\nCyberShield ${SERVICES[d.service].name} service information\nCustomer ID: ${d.customerId}\nProposed amount: ${d.amount}\nProposed coverage: ${d.years} ${d.years===1?"year":"years"}\n\n${SERVICES[d.service].summary}\n\n${d.message}\n\nThis is service information only; existing purchases, coverage and agreements are unchanged.\nCyberShield Support Team`;
+ return `Dear ${d.customerName},\n\nCyberShield ${SERVICES[d.service].name} service information\nCustomer ID: ${d.customerId}\nProposed amount: ${d.amount}\nProposed coverage: ${d.years} ${d.years===1?"year":"years"}\n\n${d.intro||""}\n\n${SERVICES[d.service].summary}\n\n${d.message}\n\nThis is service information only; existing purchases, coverage and agreements are unchanged.\nCyberShield Support Team`;
 }

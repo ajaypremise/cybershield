@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { sendCustomerCommunication } from "@/app/communications/actions";
 type Props={role:"admin"|"agent";csrfToken:string;customerId:string;customerPublicId:string;customerName:string;customerEmail:string;recordToken?:string};
 export function CustomerEmailComposer(p:Props){
@@ -11,6 +11,8 @@ export function CustomerEmailComposer(p:Props){
  const [confirm,setConfirm]=useState(false);
  const [preview,setPreview]=useState(false);
  const [busy,setBusy]=useState(false);
+ const [requestId,setRequestId]=useState("");
+ useEffect(()=>setRequestId(crypto.randomUUID()),[]);
  const serviceName=service==="NETWORK_SECURITY"?"Network Security":"Identity & IP Protector";
  return <section className="internal-card" style={{padding:"1.5rem",marginTop:"1.25rem"}}>
  <h2>Send service information</h2>
@@ -18,7 +20,7 @@ export function CustomerEmailComposer(p:Props){
  <form action={sendCustomerCommunication} className="internal-form" onSubmit={e=>{if(!confirm||busy){e.preventDefault();return;}setBusy(true);}}>
  <input type="hidden" name="role" value={p.role}/><input type="hidden" name="csrfToken" value={p.csrfToken}/>
  <input type="hidden" name="customerId" value={p.customerId}/><input type="hidden" name="recordToken" value={p.recordToken||""}/>
- <input type="hidden" name="idempotencyKey" value={typeof crypto!=="undefined"?crypto.randomUUID():"00000000-0000-4000-8000-000000000000"}/>
+ <input type="hidden" name="idempotencyKey" value={requestId}/>
  <p><strong>Recipient:</strong> {p.customerName} · {p.customerEmail} · {p.customerPublicId}</p>
  <label>Approved service template<select name="service" value={service} onChange={e=>setService(e.target.value)}><option value="NETWORK_SECURITY">Network Security</option><option value="IDENTITY_IP_PROTECTOR">Identity &amp; IP Protector</option></select></label>
  <div className="internal-form-grid">
@@ -38,6 +40,6 @@ export function CustomerEmailComposer(p:Props){
  <p style={{fontSize:12}}>Service information only. This does not change existing purchases, coverage or agreements.</p>
  </div>}
  <label style={{display:"flex",gap:10,alignItems:"flex-start"}}><input type="checkbox" checked={confirm} onChange={e=>setConfirm(e.target.checked)}/><span>I have verified the customer, service, amount, coverage and attachment. I understand this sends a real email to {p.customerEmail}.</span></label>
- <button className="internal-primary" type="submit" disabled={!confirm||busy}>{busy?"Sending…":"Send email to customer"}</button>
+ <button className="internal-primary" type="submit" disabled={!confirm||busy||!requestId}>{busy?"Sending…":"Send email to customer"}</button>
  </form></section>;
 }

@@ -30,7 +30,7 @@ export async function sendCustomerCommunication(form:FormData){
  if(!Array.isArray(recipients)||recipients.length<1||recipients.length>10||recipients.some(e=>typeof e!=="string"||!emailPattern.test(e)||!allowed.has(e.toLowerCase())))fail(role,"Choose valid customer email recipients.",id);
  const selected=[...new Set((recipients as string[]).map(e=>e.toLowerCase()))];
  const save=form.get("saveSecondary")==="yes";
- if(save&&!secondary)fail(role,"Enter an email to save.",id);
+ if(save&&(!secondary||!selected.includes(secondary)))fail(role,"Select the additional email as a recipient before saving it.",id);
  const request=await requestContext();
  await enforceRateLimit("firewall-upgrade-email",`${role}:${session.id}:${request.ip}`,10,3600);
  const reserved=await prisma.$transaction(async tx=>{
@@ -45,7 +45,7 @@ export async function sendCustomerCommunication(form:FormData){
  const template=await getFirewallTemplate();
  const accepted:string[]=[];const rejected:string[]=[];
  for(const recipient of selected){
- try{const {data,error}=await new Resend(env("RESEND_API_KEY")).emails.send({from:env("RESEND_FROM_EMAIL"),to:recipient,subject:template.subject,html:renderFirewallHtml(template.html,details),text:firewallPlainText(details)});
+ try{const {data,error}=await new Resend(env("RESEND_API_KEY")).emails.send({from:env("RESEND_FROM_EMAIL"),to:recipient,subject:template.subject,html:renderFirewallHtml(template.html,details),text:firewallPlainText(details,template.html)});
  if(error||!data?.id)throw new Error("Provider rejected email");
  accepted.push(recipient);
  await prisma.adminAuditEvent.create({data:{action:"CUSTOMER_EMAIL_ACCEPTED",targetId:id,actorRole:role.toUpperCase(),metadata:{requestId,recipient,providerId:data.id,template:"FIREWALL_6"}}});

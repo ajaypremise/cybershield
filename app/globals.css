@@ -150,3 +150,16 @@ form label{display:block;color:#cbd5e1;font-size:.78rem;font-weight:600}form inp
 .crm-root .internal-grid{grid-template-columns:minmax(0,1fr);align-items:start}
 .crm-root .internal-grid>div,.crm-root .internal-grid>section{min-width:0;width:100%}
 @media(max-width:850px){.crm-root .internal-shell{width:calc(100% - 32px)}.crm-root .crm-quick-actions{grid-template-columns:1fr}}
+
+/* CRM customer record hierarchy and compact history */
+.crm-root .crm-quick-actions{max-width:none}
+.crm-root .internal-table{width:100%;table-layout:auto}
+.crm-root .internal-table td,.crm-root .internal-table th{vertical-align:top}
+.crm-root .internal-table td:last-child{width:170px}
+.crm-root .internal-table details{position:relative}
+.crm-root .internal-table details summary,.crm-root .crm-agreements summary{cursor:pointer;color:#1658a7;font-weight:700;padding:10px 12px;border:1px solid #d9e4f1;border-radius:8px;list-style:none;background:#f6f9fd}
+.crm-root .internal-table details[open]{min-width:260px}
+.crm-root .internal-table details form{padding:14px;margin-top:8px;border:1px solid #d9e4f1;border-radius:10px;background:#fff}
+.crm-root .crm-agreements{margin-top:18px}
+.crm-root .crm-agreements .audit-list{padding:14px}
+.crm-root .summary-grid{margin-top:16px}

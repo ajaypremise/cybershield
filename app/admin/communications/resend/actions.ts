@@ -20,14 +20,15 @@ export async function resendOriginalConfirmation(form:FormData){
  const recent=await prisma.confirmationSend.findFirst({where:{purchaseId:purchase.id,createdAt:{gt:new Date(Date.now()-60000)}}});
  if(recent) redirect(`${back}?error=Recent%20send%20attempt.%20Wait%20before%20resending`);
  const attempt=await prisma.confirmationSend.create({data:{customerId,purchaseId,sendType:"ADMIN_RESEND_ORIGINAL",idempotencyKey:randomUUID(),attemptedByAgentName:"Administrator"}});
+ let emailId:string;
  try {
   const content=confirmationContent(purchase);
   const pdf=await generateCustomerConfirmationPdf(content.pdf);
-  const emailId=await sendPurchaseConfirmation(purchase.customer.email,content.email,pdf);
-  await prisma.confirmationSend.update({where:{id:attempt.id},data:{status:"SENT",resendEmailId:emailId,completedAt:new Date()}});
+  emailId=await sendPurchaseConfirmation(purchase.customer.email,content.email,pdf);
  } catch {
   await prisma.confirmationSend.update({where:{id:attempt.id},data:{status:"FAILED",completedAt:new Date()}});
   redirect(`${back}?error=Resend%20failed.%20Review%20history`);
  }
+ try {await prisma.confirmationSend.update({where:{id:attempt.id},data:{status:"SENT",resendEmailId:emailId,completedAt:new Date()}});}catch{redirect(`${back}?error=Provider%20accepted%20email%20but%20history%20update%20failed.%20Do%20not%20resend`);}
  redirect(`${back}?success=Original%20confirmation%20accepted%20by%20email%20provider`);
 }

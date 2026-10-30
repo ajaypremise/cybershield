@@ -18,7 +18,7 @@ export function CustomerEmailComposer(p:Props){
  <h2>Send service information</h2>
  <p>This sends a new informational email, not a purchase confirmation or agreement. No existing purchase, customer ID or coverage record is changed.</p>
  <form action={sendCustomerCommunication} className="internal-form" onSubmit={e=>{if(!confirm||busy){e.preventDefault();return;}setBusy(true);}}>
- <input type="hidden" name="role" value={p.role}/><input type="hidden" name="csrfToken" value={p.csrfToken}/>
+ <input type="hidden" name="confirmSend" value={confirm?"yes":"no"}/><input type="hidden" name="role" value={p.role}/><input type="hidden" name="csrfToken" value={p.csrfToken}/>
  <input type="hidden" name="customerId" value={p.customerId}/><input type="hidden" name="recordToken" value={p.recordToken||""}/>
  <input type="hidden" name="idempotencyKey" value={requestId}/>
  <p><strong>Recipient:</strong> {p.customerName} · {p.customerEmail} · {p.customerPublicId}</p>

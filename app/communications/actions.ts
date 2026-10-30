@@ -33,6 +33,7 @@ export async function sendCustomerCommunication(form:FormData) {
  const years=Number(form.get("years"));
  const amount=Number(form.get("amount"));
  const message=String(form.get("message")||"").trim();
+ if(form.get("confirmSend")!=="yes") fail(role,"Please confirm the final details before sending.");
  if(!Number.isInteger(years)||years<1||years>50||!Number.isFinite(amount)||amount<=0||amount>10000000||message.length>2000) fail(role,"Check years, amount and message length.");
  const currency=String(form.get("currency")||"AUD");
  if(!["AUD","USD","GBP"].includes(currency)) fail(role,"Invalid currency.");

@@ -35,7 +35,7 @@ export async function sendCustomerCommunication(form:FormData){
  const request=await requestContext();
  await enforceRateLimit("firewall-upgrade-email",`${role}:${session.id}:${request.ip}`,10,3600);
  const reserved=await prisma.$transaction(async tx=>{
- await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${requestId}))`;
+ await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${requestId}))::text AS lock_result`;
  const existing=await tx.adminAuditEvent.findFirst({where:{action:"CUSTOMER_EMAIL_REQUEST",metadata:{path:["requestId"],equals:requestId}}});
  if(existing)return false;
  await tx.adminAuditEvent.create({data:{action:"CUSTOMER_EMAIL_REQUEST",targetId:id,actorRole:role.toUpperCase(),actorName:role==="admin"?"Administrator":"Agent",ipAddress:request.ip,metadata:{requestId,template:"FIREWALL_6",recipients:selected,status:"ATTEMPTED"}}});

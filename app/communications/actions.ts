@@ -41,8 +41,7 @@ export async function sendCustomerCommunication(form:FormData) {
  const request=await requestContext();
  await enforceRateLimit("customer-communication",`${role}:${session.id}:${request.ip}`,10,3600);
  // Reserve the unique request before contacting the provider. Never retry the same request automatically.
- const existing=await prisma.adminAuditEvent.findFirst({where:{action:"CUSTOMER_EMAIL_REQUEST",metadata:{path:["requestId"],equals:idempotencyKey}}});
- if(existing) fail(role,"This request was already submitted. Review history before trying again.");
+
  const templateEvents=await prisma.adminAuditEvent.findMany({where:{action:"CUSTOMER_TEMPLATE_UPDATED"},orderBy:{timestamp:"desc"},take:100});
  const template=templateEvents.find(e=>(e.metadata as {service?:string}|null)?.service===service);
  const intro=(template?.metadata as {intro?:string}|null)?.intro||"";
@@ -59,7 +58,14 @@ export async function sendCustomerCommunication(form:FormData) {
    if(!pdf&&!png&&!jpg) fail(role,"Only valid PDF, PNG or JPEG attachments are allowed.");
    attachments=[{filename,content:bytes}];
  }
- await prisma.adminAuditEvent.create({data:{action:"CUSTOMER_EMAIL_REQUEST",targetId:customer.id,actorRole:role.toUpperCase(),actorName:role==="admin"?"Administrator":"Agent",ipAddress:request.ip,metadata:{requestId:idempotencyKey,customerId:customer.customerId,service,years,amount,currency,attachment:attachments[0]?.filename||null,status:"ATTEMPTED",intro,message}}});
+ const reserved=await prisma.$transaction(async tx=>{
+   await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${idempotencyKey}))`;
+   const previous=await tx.adminAuditEvent.findFirst({where:{action:"CUSTOMER_EMAIL_REQUEST",metadata:{path:["requestId"],equals:idempotencyKey}}});
+   if(previous)return false;
+   await tx.adminAuditEvent.create({data:{action:"CUSTOMER_EMAIL_REQUEST",targetId:customer.id,actorRole:role.toUpperCase(),actorName:role==="admin"?"Administrator":"Agent",ipAddress:request.ip,metadata:{requestId:idempotencyKey,customerId:customer.customerId,service,years,amount,currency,attachment:attachments[0]?.filename||null,status:"ATTEMPTED",intro,message}}});
+   return true;
+ });
+ if(!reserved)fail(role,"This request was already submitted. Review history before trying again.");
  let providerId:string;
  try {
    const {data,error}=await new Resend(env("RESEND_API_KEY")).emails.send({

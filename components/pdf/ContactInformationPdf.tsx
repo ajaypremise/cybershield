@@ -14,6 +14,7 @@ export type ConfirmationPdfProps = { confirmationNumber: string; customerName: s
 export function confirmationPdfText(p: ConfirmationPdfProps) { return `CyberShield Australia contact information for ${p.customerId}: 1800 997 002, info@cybershieldau.com.au`; }
 export function ContactInformationPdf(p: ConfirmationPdfProps) {
   const rows = [
+    ["CUSTOMER ID", p.customerId],
     ["TOLL FREE SUPPORT", "1800 997 002"], ["SUPPORT", "(03) 7046 5922"], ["BILLING", "(04) 6825 8207"],
     ["EMAIL", "info@cybershieldau.com.au"], ["WEBSITE", "cybershieldau.com.au"], ["SUPPORT HOURS", "10 AM to 9 PM AEST"],
     ["ADDRESS", "121 Collins St, Melbourne VIC 3000"],

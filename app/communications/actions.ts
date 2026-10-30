@@ -35,11 +35,10 @@ export async function sendCustomerCommunication(form:FormData){
  const request=await requestContext();
  await enforceRateLimit("firewall-upgrade-email",`${role}:${session.id}:${request.ip}`,10,3600);
  const reserved=await prisma.$transaction(async tx=>{
- await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${requestId}))`;
+ await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${requestId}))`;
  const existing=await tx.adminAuditEvent.findFirst({where:{action:"CUSTOMER_EMAIL_REQUEST",metadata:{path:["requestId"],equals:requestId}}});
  if(existing)return false;
  await tx.adminAuditEvent.create({data:{action:"CUSTOMER_EMAIL_REQUEST",targetId:id,actorRole:role.toUpperCase(),actorName:role==="admin"?"Administrator":"Agent",ipAddress:request.ip,metadata:{requestId,template:"FIREWALL_6",recipients:selected,status:"ATTEMPTED"}}});
- if(save&&secondary&&secondary!==customer.email.toLowerCase()&&!customer.secondaryEmails.map(e=>e.toLowerCase()).includes(secondary)){await tx.customer.update({where:{id},data:{secondaryEmails:{push:secondary}}});}
  return true;
  });
  if(!reserved)fail(role,"This email request was already submitted. Check history before trying again.",id);
@@ -52,6 +51,11 @@ export async function sendCustomerCommunication(form:FormData){
  await prisma.adminAuditEvent.create({data:{action:"CUSTOMER_EMAIL_ACCEPTED",targetId:id,actorRole:role.toUpperCase(),metadata:{requestId,recipient,providerId:data.id,template:"FIREWALL_6"}}});
  }catch(error){rejected.push(recipient);await prisma.adminAuditEvent.create({data:{action:"CUSTOMER_EMAIL_FAILED",targetId:id,actorRole:role.toUpperCase(),metadata:{requestId,recipient,template:"FIREWALL_6",error:String(error).slice(0,300)}}});}
  }
+ if(save&&secondary&&accepted.includes(secondary)&&secondary!==customer.email.toLowerCase()&&!customer.secondaryEmails.map(e=>e.toLowerCase()).includes(secondary)){
+ try{await prisma.customer.update({where:{id},data:{secondaryEmails:{push:secondary}}});}
+ catch(error){console.error("Accepted upgrade email but secondary address could not be saved",{customerId:id,requestId,error});rejected.push("secondary-email-save");}
+ }
  const msg=rejected.length?`Accepted for ${accepted.length} recipient(s), failed for ${rejected.length}. Reference: ${requestId}. Check history before retrying.`:`Upgrade email accepted for ${accepted.length} recipient(s). Delivery not yet confirmed. Reference: ${requestId}.`;
- redirect(`${route(role,id)}?${rejected.length?"error":"success"}=${encodeURIComponent(msg)}`);
+ const destination=role==="agent"?"/portal?mode=upgrade&record="+encodeURIComponent(String(form.get("recordToken")||"")):route(role,id)+"?";
+ redirect(destination+(role==="agent"?"&":"")+`${rejected.length?"error":"success"}=${encodeURIComponent(msg)}`);
 }

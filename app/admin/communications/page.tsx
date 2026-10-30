@@ -16,7 +16,7 @@ export default async function CommunicationsPage({searchParams}:{searchParams:Pr
     include:{purchases:{orderBy:{createdAt:"desc"},take:3,include:{confirmationSends:{orderBy:{createdAt:"desc"},take:2}}},agreements:{orderBy:{createdAt:"desc"},take:2,include:{sends:{orderBy:{createdAt:"desc"},take:2}}}}
   });
   return <InternalShell role="Administrator" logoutAction={adminLogoutAction}>
-    <p className="internal-eyebrow">Administrator · Read-only overview</p><h1>Customer communications</h1>
+    <p className="internal-eyebrow">Administrator · Read-only overview</p><h1>Customer communications</h1><p><Link href="/admin/communications/templates">Manage both service email templates</Link></p>
     <p className="internal-lead">Customer IDs are permanent. This page does not send emails, change customer details, or alter historical purchases and agreements.</p>
     <form method="get" className="internal-form" style={{maxWidth:560,marginBottom:24}}>
       <label>Find customer by name, email or Customer ID<input name="q" defaultValue={query} placeholder="Name, email or CS-2026-000123"/></label>

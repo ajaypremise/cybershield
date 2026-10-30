@@ -19,3 +19,12 @@ export async function saveFirewallTemplate(form:FormData){
  await prisma.adminAuditEvent.create({data:{action:"FIREWALL_TEMPLATE_UPDATED",actorRole:"ADMIN",metadata:{subject,html,version:new Date().toISOString()}}});
  redirect("/admin/communications/templates?success=Firewall%20template%20saved");
 }
+
+export async function saveServiceHtml(form:FormData){
+ await validateAdminCsrf(String(form.get("csrfToken")||""));
+ const service=String(form.get("service")||""),html=String(form.get("html")||"");
+ const {validateFirewallHtml}=await import("@/lib/firewall-template-settings");
+ if(!["NETWORK_SECURITY","IDENTITY_IP_PROTECTOR"].includes(service)||!validateFirewallHtml(html))redirect("/admin/communications/templates?error=Invalid%20service%20HTML");
+ await prisma.adminAuditEvent.create({data:{action:"SERVICE_HTML_UPDATED",actorRole:"ADMIN",metadata:{service,html,version:new Date().toISOString()}}});
+ redirect("/admin/communications/templates?success=Service%20HTML%20saved");
+}

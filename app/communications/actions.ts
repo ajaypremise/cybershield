@@ -17,9 +17,9 @@ function fail(role:string,message:string):never {redirect(`${route(role)}?error=
 export async function sendCustomerCommunication(form:FormData) {
  const role=String(form.get("role")||"");
  if(role!=="admin"&&role!=="agent") throw new Error("Invalid role");
- if(form.get("confirmSend")!=="yes") fail(role,"Confirm the recipient and details before sending.");
  const csrf=String(form.get("csrfToken")||"");
  const session=role==="admin"?await validateAdminCsrf(csrf):await validateAgentCsrf(csrf);
+ if(form.get("confirmSend")!=="yes") fail(role,"Confirm the recipient and details before sending.");
  const customerId=String(form.get("customerId")||"");
  const token=String(form.get("recordToken")||"");
  if(role==="agent"){

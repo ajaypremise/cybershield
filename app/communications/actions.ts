@@ -32,7 +32,7 @@ export async function sendCustomerCommunication(form:FormData) {
  if(service!=="NETWORK_SECURITY"&&service!=="IDENTITY_IP_PROTECTOR") fail(role,"Choose an approved service.");
  const years=Number(form.get("years"));
  const amount=Number(form.get("amount"));
- const message=String(form.get("message")||"").trim();
+ const message=role==="admin"?String(form.get("message")||"").trim():"";
  if(!Number.isInteger(years)||years<1||years>50||!Number.isFinite(amount)||amount<=0||amount>10000000||message.length>2000) fail(role,"Check years, amount and message length.");
  const currency=String(form.get("currency")||"AUD");
  if(!["AUD","USD","GBP"].includes(currency)) fail(role,"Invalid currency.");
@@ -47,7 +47,7 @@ export async function sendCustomerCommunication(form:FormData) {
  const template=templateEvents.find(e=>(e.metadata as {service?:string}|null)?.service===service);
  const intro=(template?.metadata as {intro?:string}|null)?.intro||"";
  const details:CommunicationDetails={intro,customerName:customer.name,customerId:customer.customerId,service,years,amount:formatMoney({toString:()=>amount.toFixed(2)},currency),message};
- const file=form.get("attachment");
+ const file=role==="admin"?form.get("attachment"):null;
  let attachments: {filename:string;content:Buffer}[]=[];
  if(file instanceof File && file.size>0){
    if(file.size>5*1024*1024) fail(role,"Attachment must be 5 MB or less.");

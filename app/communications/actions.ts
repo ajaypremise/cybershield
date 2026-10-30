@@ -1,5 +1,5 @@
 "use server";
-import { randomUUID } from "node:crypto";
+import { createElement } from "react";
 import { redirect } from "next/navigation";
 import { Resend } from "resend";
 import { prisma } from "@/lib/db";
@@ -59,7 +59,7 @@ export async function sendCustomerCommunication(form:FormData) {
  try {
    const {data,error}=await new Resend(env("RESEND_API_KEY")).emails.send({
      from:env("RESEND_FROM_EMAIL"),to:customer.email,subject:customerCommunicationSubject(details),
-     react:<CustomerCommunicationEmail details={details}/>,text:customerCommunicationText(details),
+     react:createElement(CustomerCommunicationEmail,{details}),text:customerCommunicationText(details),
      ...(attachments.length?{attachments}:{})
    });
    if(error||!data?.id) throw new Error("Email provider rejected the request.");

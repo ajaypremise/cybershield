@@ -12,6 +12,6 @@ export async function contactAction(formData: FormData) {
   const { ip } = await requestContext();
   await enforceRateLimit("public-contact", `${ip}:${normalizeEmail(parsed.data.email)}`, 4, 60 * 60);
   try { await sendContactSubmission(parsed.data); await auditEvent({ action: "PUBLIC_CONTACT_SENT", actorRole: "SYSTEM", ipAddress: ip }); }
-  catch (error) { console.error("Contact form delivery failed", error instanceof Error ? error.message : "Unknown error"); await auditEvent({ action: "PUBLIC_CONTACT_FAILED", actorRole: "SYSTEM", ipAddress: ip, success: false }); }
+  catch (error) { console.error("Contact form delivery failed", error instanceof Error ? error.message : "Unknown error"); await auditEvent({ action: "PUBLIC_CONTACT_FAILED", actorRole: "SYSTEM", ipAddress: ip, success: false }); redirect("/contact?status=failed"); }
   redirect("/contact?status=received");
 }
